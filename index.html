@@ -153,6 +153,16 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 
   <div class="card">
+    <h3>⚙️ 活動基本設定</h3>
+    <div class="formrow">
+      <input id="f_s_name" placeholder="活動名稱（例如 2026勸世減重澎湖花火節四天三夜）">
+      <input id="f_s_date" placeholder="活動日期（例如 2026/01/01–2026/01/03）">
+      <input id="f_s_footer" placeholder="手冊名稱／頁尾文字（可留空，會自動用活動名稱）">
+      <button class="btn" onclick="saveSettings()">儲存設定</button>
+    </div>
+  </div>
+
+  <div class="card">
     <h3>👤 新增人員</h3>
     <div class="formrow">
       <input id="f_m_name" placeholder="姓名（顯示用，例如 Bernie (豐豐)）">
@@ -447,6 +457,11 @@ function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
 function uid(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1000); }
 
 function renderEditForms(){
+  // 活動基本設定（只在使用者沒在打字時同步，避免覆蓋輸入中的內容）
+  if(document.activeElement !== $("f_s_name")) $("f_s_name").value = DATA.settings.activity_name || "";
+  if(document.activeElement !== $("f_s_date")) $("f_s_date").value = DATA.settings.activity_date || "";
+  if(document.activeElement !== $("f_s_footer")) $("f_s_footer").value = DATA.settings.footer_text || "";
+
   // 下拉選單：分組 / 房間
   const teamSel = $("f_m_team");
   teamSel.innerHTML = `<option value="">（不指定分組）</option>` + DATA.teams.map(t=>`<option value="${esc(t.team_id)}">${esc(t.team_name)}</option>`).join("");
@@ -503,6 +518,16 @@ function renderEditForms(){
     return `<div class="edit-row"><span>${esc(t.restaurant)}｜${esc(t.table_no)}桌｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
     <button class="del-btn" onclick="deleteTable('${esc(t.seating_id)}')">刪除</button></div>`;
   }).join("") || `<p class="small">目前沒有桌次資料。</p>`;
+}
+
+function saveSettings(){
+  const name = $("f_s_name").value.trim();
+  if(!name){ alert("請輸入活動名稱"); return; }
+  DATA.settings.activity_name = name;
+  DATA.settings.activity_date = $("f_s_date").value.trim();
+  DATA.settings.footer_text = $("f_s_footer").value.trim() || (name + " Web 旅遊手冊");
+  saveData(); renderAll();
+  alert("設定已儲存！");
 }
 
 function addMember(){
