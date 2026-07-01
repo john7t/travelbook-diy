@@ -208,6 +208,49 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 
   <div class="card">
+    <h3>✈️ 新增交通</h3>
+    <div class="formrow">
+      <select id="f_tr_member"></select>
+      <select id="f_tr_dir"><option value="去程">去程</option><option value="回程">回程</option></select>
+      <input id="f_tr_type" placeholder="交通方式（例如 飛機/船/客運）">
+      <input id="f_tr_carrier" placeholder="業者（例如 立榮）">
+      <input id="f_tr_time" placeholder="時間（例如 10:35）">
+      <input id="f_tr_datenote" placeholder="日期備註（例如 前一天，可留空）">
+      <input id="f_tr_note" placeholder="備註（可留空）">
+      <button class="btn" onclick="addTransport()">新增交通</button>
+    </div>
+    <div id="transportEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>🛵 新增機車共乘</h3>
+    <div class="formrow">
+      <select id="f_sc_member"></select>
+      <select id="f_sc_dir"><option value="去程">去程</option><option value="回程">回程</option></select>
+      <input id="f_sc_group" placeholder="共乘組別（例如 RG001，同組請填一樣）">
+      <input id="f_sc_time" placeholder="時段（例如 前一天 10:35）">
+      <select id="f_sc_role"><option value="駕駛">駕駛</option><option value="乘客">乘客</option></select>
+      <input id="f_sc_carrier" placeholder="業者（可留空）">
+      <input id="f_sc_note" placeholder="備註（可留空）">
+      <button class="btn" onclick="addScooter()">新增共乘</button>
+    </div>
+    <div id="scooterEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>🍽️ 新增桌次</h3>
+    <div class="formrow">
+      <select id="f_tb_member"></select>
+      <input id="f_tb_restaurant" placeholder="餐廳名稱">
+      <input id="f_tb_meal" placeholder="餐別代號（例如 MEAL01）">
+      <input id="f_tb_no" placeholder="桌號（例如 1）">
+      <input id="f_tb_note" placeholder="備註（可留空，例如 桌長）">
+      <button class="btn" onclick="addTable()">新增桌次</button>
+    </div>
+    <div id="tableEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
     <h3>💾 資料備份 / 分享</h3>
     <div class="actions">
       <button class="btn" onclick="exportData()">📤 匯出資料（下載 JSON）</button>
@@ -410,6 +453,11 @@ function renderEditForms(){
   const roomSel = $("f_m_room");
   roomSel.innerHTML = `<option value="">（不指定房間）</option>` + DATA.rooms.map(r=>`<option value="${esc(r.room_id)}">${esc(r.room_name || r.room_id)}</option>`).join("");
 
+  const memberOptions = `<option value="">（選擇人員）</option>` + DATA.members.map(m=>`<option value="${esc(m.member_id)}">${esc(m.nickname || m.display_name)}</option>`).join("");
+  $("f_tr_member").innerHTML = memberOptions;
+  $("f_sc_member").innerHTML = memberOptions;
+  $("f_tb_member").innerHTML = memberOptions;
+
   // 人員列表
   $("memberEditList").innerHTML = DATA.members.map(m=>`
     <div class="edit-row"><span>${esc(m.nickname || m.display_name)}${m.team_id?"｜"+esc(m.team_id):""}${m.room_id?"｜"+esc(m.room_id):""}</span>
@@ -434,6 +482,27 @@ function renderEditForms(){
   $("scheduleEditList").innerHTML = DATA.schedule.map(s=>`
     <div class="edit-row"><span>${esc(s.day)}｜${esc(s.start_time||"")}${s.end_time?"–"+esc(s.end_time):""}｜${esc(s.title)}</span>
     <button class="del-btn" onclick="deleteSchedule('${esc(s.schedule_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有行程。</p>`;
+
+  // 交通列表
+  $("transportEditList").innerHTML = DATA.transport.map(t=>{
+    const m = DATA.members.find(m=>m.member_id===t.member_id);
+    return `<div class="edit-row"><span>${esc(t.direction)}｜${esc(t.transport_type)}｜${esc(t.time||"")}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <button class="del-btn" onclick="deleteTransport('${esc(t.transport_id)}')">刪除</button></div>`;
+  }).join("") || `<p class="small">目前沒有交通資料。</p>`;
+
+  // 機車列表
+  $("scooterEditList").innerHTML = DATA.scooter.map(s=>{
+    const m = DATA.members.find(m=>m.member_id===s.member_id);
+    return `<div class="edit-row"><span>${esc(s.direction)}｜${esc(s.ride_group_id)}｜${esc(s.role)}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <button class="del-btn" onclick="deleteScooter('${esc(s.scooter_id)}')">刪除</button></div>`;
+  }).join("") || `<p class="small">目前沒有機車共乘資料。</p>`;
+
+  // 桌次列表
+  $("tableEditList").innerHTML = DATA.tables.map(t=>{
+    const m = DATA.members.find(m=>m.member_id===t.member_id);
+    return `<div class="edit-row"><span>${esc(t.restaurant)}｜${esc(t.table_no)}桌｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <button class="del-btn" onclick="deleteTable('${esc(t.seating_id)}')">刪除</button></div>`;
+  }).join("") || `<p class="small">目前沒有桌次資料。</p>`;
 }
 
 function addMember(){
@@ -518,6 +587,61 @@ function addSchedule(){
 function deleteSchedule(id){
   if(!confirm("確定要刪除這筆行程嗎？")) return;
   DATA.schedule = DATA.schedule.filter(s=>s.schedule_id!==id);
+  saveData(); renderAll();
+}
+
+function addTransport(){
+  const member_id = $("f_tr_member").value;
+  if(!member_id){ alert("請選擇人員"); return; }
+  const m = DATA.members.find(m=>m.member_id===member_id);
+  DATA.transport.push({
+    transport_id: uid("TR_"), member_id, display_name: m ? (m.nickname||m.display_name) : "",
+    direction: $("f_tr_dir").value, transport_type: $("f_tr_type").value.trim(),
+    carrier: $("f_tr_carrier").value.trim(), time: $("f_tr_time").value.trim(),
+    date_note: $("f_tr_datenote").value.trim(), scooter_partner_member_id: "", note: $("f_tr_note").value.trim()
+  });
+  $("f_tr_type").value=""; $("f_tr_carrier").value=""; $("f_tr_time").value=""; $("f_tr_datenote").value=""; $("f_tr_note").value="";
+  saveData(); renderAll();
+}
+function deleteTransport(id){
+  if(!confirm("確定要刪除這筆交通資料嗎？")) return;
+  DATA.transport = DATA.transport.filter(t=>t.transport_id!==id);
+  saveData(); renderAll();
+}
+
+function addScooter(){
+  const member_id = $("f_sc_member").value;
+  if(!member_id){ alert("請選擇人員"); return; }
+  const group = $("f_sc_group").value.trim() || uid("RG_");
+  DATA.scooter.push({
+    scooter_id: uid("SC_"), ride_group_id: group, direction: $("f_sc_dir").value,
+    time_slot: $("f_sc_time").value.trim(), member_id, role: $("f_sc_role").value,
+    carrier: $("f_sc_carrier").value.trim(), note: $("f_sc_note").value.trim()
+  });
+  $("f_sc_group").value=""; $("f_sc_time").value=""; $("f_sc_carrier").value=""; $("f_sc_note").value="";
+  saveData(); renderAll();
+}
+function deleteScooter(id){
+  if(!confirm("確定要刪除這筆共乘資料嗎？")) return;
+  DATA.scooter = DATA.scooter.filter(s=>s.scooter_id!==id);
+  saveData(); renderAll();
+}
+
+function addTable(){
+  const member_id = $("f_tb_member").value;
+  if(!member_id){ alert("請選擇人員"); return; }
+  const m = DATA.members.find(m=>m.member_id===member_id);
+  DATA.tables.push({
+    seating_id: uid("S_"), member_id, display_name: m ? (m.nickname||m.display_name) : "",
+    meal_id: $("f_tb_meal").value.trim(), restaurant: $("f_tb_restaurant").value.trim(),
+    table_no: $("f_tb_no").value.trim(), is_table_leader: "", note: $("f_tb_note").value.trim()
+  });
+  $("f_tb_restaurant").value=""; $("f_tb_meal").value=""; $("f_tb_no").value=""; $("f_tb_note").value="";
+  saveData(); renderAll();
+}
+function deleteTable(id){
+  if(!confirm("確定要刪除這筆桌次資料嗎？")) return;
+  DATA.tables = DATA.tables.filter(t=>t.seating_id!==id);
   saveData(); renderAll();
 }
 
