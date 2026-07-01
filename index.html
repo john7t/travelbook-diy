@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2026勸世減重澎湖花火節四天三夜</title>
+<style>
+:root{
+  --bg:#f6f8fb;--card:#fff;--ink:#172033;--muted:#64748b;--line:#e5e7eb;
+  --nav:#0f172a;--ocean:#0284c7;--deep:#075985;--sun:#fff3cd;--sun-border:#f59e0b;
+  --shadow:0 10px 28px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#e0f2fe 0,#f6f8fb 300px);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",Arial,sans-serif;line-height:1.55}
+.topbar{position:sticky;top:0;z-index:999;background:rgba(15,23,42,.96);backdrop-filter:blur(10px);box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.navrow{display:flex;gap:8px;align-items:center;max-width:1180px;margin:auto;padding:9px 10px}
+.navlinks{display:flex;gap:8px;overflow:auto;flex:1;scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a,.viewer{white-space:nowrap;text-decoration:none;color:#fff;background:rgba(255,255,255,.11);padding:8px 10px;border-radius:999px;font-size:14px;border:1px solid rgba(255,255,255,.14)}
+.viewer{background:#f59e0b;color:#111827;border:0;font-weight:900;cursor:pointer}
+main{max-width:1180px;margin:auto;padding:16px 12px 42px}
+section{scroll-margin-top:76px;margin-bottom:28px}
+.hero{border-radius:26px;padding:26px 18px;background:linear-gradient(135deg,#0ea5e9,#2563eb 55%,#0f172a);color:white;box-shadow:var(--shadow)}
+.hero h1{font-size:clamp(30px,7vw,56px);line-height:1.08;margin:0 0 12px;font-weight:950}
+.hero p{margin:6px 0;color:rgba(255,255,255,.9)}
+h2{font-size:28px;margin:24px 0 12px}
+h3{font-size:20px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid rgba(15,23,42,.06);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.stat{grid-column:span 3;text-align:center}
+.stat b{display:block;font-size:30px;color:var(--deep)}
+.small{font-size:13px;color:var(--muted)}
+.notice{background:var(--sun);border-left:5px solid var(--sun-border)}
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.map-grid a{display:block;background:white;border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--deep);font-weight:800;text-decoration:none}
+.room-head{display:flex;justify-content:space-between;gap:12px;font-weight:900}
+.floor{color:var(--deep);white-space:nowrap}
+.people-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--line);background:#f8fafc;border-radius:999px;padding:7px 10px;font-size:14px}
+.highlight{background:var(--sun)!important;border-color:var(--sun-border)!important;box-shadow:0 0 0 2px rgba(245,158,11,.18) inset}
+.highlight::before{content:"⭐ ";font-size:12px}
+.details{border:1px solid var(--line);border-radius:16px;margin:10px 0;overflow:hidden;background:white}
+.details summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:900;display:flex;justify-content:space-between;gap:10px}
+.details summary::-webkit-details-marker{display:none}
+.detail-body{padding:0 16px 14px}
+.event-row{border-top:1px dashed #e2e8f0;padding:10px 0}
+.group-tag{display:inline-block;background:#e0f2fe;color:#075985;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:900;margin-right:6px}
+.person-btn{border:1px solid #cbd5e1;background:white;border-radius:999px;padding:9px 12px;margin:4px;font-size:15px;cursor:pointer}
+.person-btn:hover{background:#eff6ff}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.btn{border:0;background:#0f172a;color:white;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer}
+.btn.secondary{background:#e2e8f0;color:#0f172a}
+.summary{display:none}
+.summary.active{display:block}
+.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.summary-item{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;word-break:break-word}
+.phone-link{font-size:22px;font-weight:950;color:#dc2626;text-decoration:none}
+.table-card,.team-card,.room-card{margin-bottom:14px}
+.table-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.footer{text-align:center;color:#64748b;padding:32px 10px}
+.err{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.formrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.formrow input,.formrow select{flex:1 1 160px;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
+.edit-list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.edit-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14px}
+.del-btn{border:0;background:#fee2e2;color:#991b1b;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer;font-size:13px;flex-shrink:0}
+@media (max-width:760px){
+  main{padding:12px 10px 28px}
+  .navrow{padding:8px}
+  .navlinks a,.viewer{font-size:13px;padding:7px 9px}
+  .stat{grid-column:span 6}
+  .summary-grid{grid-template-columns:1fr}
+  .map-grid{grid-template-columns:1fr 1fr}
+  .room-head{font-size:15px;align-items:center}
+  .card{padding:14px;border-radius:16px}
+}
+@media (max-width:390px){.map-grid{grid-template-columns:1fr}.floor{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="navrow">
+    <div class="navlinks">
+      <a href="#home">🏠 首頁</a>
+      <a href="#schedule">🗓️ 行程</a>
+      <a href="#transport">✈️ 交通</a>
+      <a href="#scooter">🛵 機車</a>
+      <a href="#room">🏠 房間</a>
+      <a href="#table">🍴 桌次</a>
+      <a href="#team">👥 Team（暫訂）</a>
+      <a href="#person">👤 個人查詢</a>
+      <a href="#edit">✏️ 編輯資料</a>
+    </div>
+    <button class="viewer" id="viewerBtn" onclick="location.hash='#person'">👤 全體模式</button>
+  </div>
+</div>
+
+<main>
+<section id="home" class="hero">
+  <h1 id="title">2026 勸世減重澎湖花火節四天三夜</h1>
+  <p>海島・花火・我們的初夏澎湖之旅</p>
+  <p id="activityDate">2026 / 6・18 — 6・21｜澎湖離島</p>
+</section>
+
+<section><div class="grid" id="stats"></div></section>
+
+<section id="schedule"><h2>🗓️ 行程</h2><div id="scheduleList"></div></section>
+
+<section id="locations"><h2>📍 地點導航</h2><div class="map-grid" id="locationList"></div></section>
+
+<section id="transport">
+  <h2>✈️ 交通</h2>
+  <p class="small">依方向、交通方式與時段整理。點開可查看完整人員。</p>
+  <div id="transportList"></div>
+</section>
+
+<section id="scooter">
+  <h2>🛵 機車</h2>
+  <div class="card notice" id="scooterNotice"></div>
+  <div id="scooterList"></div>
+</section>
+
+<section id="room"><h2>🏠 房間</h2><div id="roomList"></div></section>
+
+<section id="table"><h2>🍴 桌次</h2><div id="tableList"></div></section>
+
+<section id="team">
+  <h2>👥 Team（暫訂）</h2>
+  <div class="card notice">目前僅作為人員分組參考，後續可能依活動內容進行調整。</div>
+  <div id="teamList"></div>
+</section>
+
+<section id="person">
+  <h2>👤 個人查詢</h2>
+  <div class="card">
+    <h3 id="currentPersonTitle">目前查看：全體模式</h3>
+    <div class="actions"><button class="btn secondary" onclick="clearPerson()">取消高亮／回全體模式</button></div>
+    <div class="summary" id="personSummary"></div>
+  </div>
+  <div class="card">
+    <h3>所有人員</h3>
+    <p class="small">直接點名字，不用輸入。選擇後會自動收藏，下次打開仍會記住。</p>
+    <div id="peopleButtons"></div>
+  </div>
+</section>
+
+<section id="edit">
+  <h2>✏️ 編輯資料</h2>
+  <div class="card notice">
+    這裡新增/刪除的內容只會存在<b>你這台裝置的瀏覽器</b>裡，不會傳到網路上、也不會影響其他人看到的頁面。
+    改好之後按「📤 匯出資料」下載一個 JSON 檔案，傳給朋友，朋友用「📥 匯入資料」讀進去，就會看到跟你一樣的內容。
+  </div>
+
+  <div class="card">
+    <h3>👤 新增人員</h3>
+    <div class="formrow">
+      <input id="f_m_name" placeholder="姓名（顯示用，例如 Bernie (豐豐)）">
+      <input id="f_m_nick" placeholder="暱稱（列表用，可留空則用姓名）">
+      <select id="f_m_team"></select>
+      <select id="f_m_room"></select>
+      <button class="btn" onclick="addMember()">新增人員</button>
+    </div>
+    <div id="memberEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>👥 新增分組 / Team</h3>
+    <div class="formrow">
+      <input id="f_t_name" placeholder="分組名稱（例如 TEAM E）">
+      <button class="btn" onclick="addTeam()">新增分組</button>
+    </div>
+    <div id="teamEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>🏠 新增房間</h3>
+    <div class="formrow">
+      <input id="f_r_type" placeholder="房型（例如 4人房）">
+      <input id="f_r_name" placeholder="房名/房號（例如 R-PSK-8201）">
+      <input id="f_r_floor" placeholder="樓層/位置說明">
+      <button class="btn" onclick="addRoom()">新增房間</button>
+    </div>
+    <div id="roomEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>📍 新增地點</h3>
+    <div class="formrow">
+      <input id="f_l_name" placeholder="地點名稱">
+      <input id="f_l_map" placeholder="Google 地圖連結（可留空，會自動用名稱搜尋）">
+      <button class="btn" onclick="addLocation()">新增地點</button>
+    </div>
+    <div id="locationEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>🗓️ 新增行程</h3>
+    <div class="formrow">
+      <input id="f_s_day" placeholder="Day（例如 Day 1）">
+      <input id="f_s_start" placeholder="開始時間（例如 09:00）">
+      <input id="f_s_end" placeholder="結束時間（可留空）">
+      <input id="f_s_title" placeholder="標題">
+      <input id="f_s_loc" placeholder="地點">
+      <button class="btn" onclick="addSchedule()">新增行程</button>
+    </div>
+    <div id="scheduleEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>💾 資料備份 / 分享</h3>
+    <div class="actions">
+      <button class="btn" onclick="exportData()">📤 匯出資料（下載 JSON）</button>
+      <button class="btn secondary" onclick="document.getElementById('importFile').click()">📥 匯入資料（讀取 JSON）</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+      <button class="btn secondary" onclick="resetData()">↩️ 還原成原始資料</button>
+    </div>
+    <p class="small">匯出的檔案包含目前你在這台裝置上看到的<b>全部資料</b>（原始內容＋你新增的內容），朋友匯入後就會完整取代他原本看到的內容。</p>
+  </div>
+</section>
+
+<div class="footer" id="footerText">2026勸世減重澎湖花火節四天三夜 Web 旅遊手冊</div>
+</main>
+
+<script>
+let DATA = null;
+let selectedMemberId = localStorage.getItem("penghuSelectedMemberId") || "";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+function member(id){return DATA.members.find(m => m.member_id === id)}
+function memberName(id){const m=member(id); return m ? (m.nickname || m.display_name) : id}
+function displayName(id){const m=member(id); return m ? m.display_name : id}
+function isSel(id){return selectedMemberId && id === selectedMemberId}
+function chip(id, extra=""){
+  const m = member(id);
+  const text = m ? (m.nickname ? `${m.nickname}｜${m.display_name}` : m.display_name) : id;
+  return `<span class="chip ${isSel(id)?'highlight':''}">${extra}${esc(text)}</span>`;
+}
+function stat(label, value){return `<div class="card stat"><b>${esc(value)}</b><span>${esc(label)}</span></div>`}
+
+function renderStats(){
+  const mealCount = new Set(DATA.tables.map(t=>t.meal_id)).size;
+  const rideGroups = new Set(DATA.scooter.map(s=>s.ride_group_id)).size;
+  $("stats").innerHTML = [
+    stat("成員", DATA.members.length),
+    stat("房間", DATA.rooms.filter(r=>r.member_ids.length).length),
+    stat("Team", DATA.teams.length),
+    stat("交通紀錄", DATA.transport.length),
+    stat("餐次", mealCount),
+    stat("機車共乘組", rideGroups)
+  ].join("");
+}
+function renderSchedule(){
+  const groups = {};
+  DATA.schedule.forEach(s=>{groups[s.day] ||= []; groups[s.day].push(s)});
+  $("scheduleList").innerHTML = Object.entries(groups).map(([day, rows])=>`
+    <div class="card"><h3>${esc(day)}</h3>
+      ${rows.map(r=>`<div class="event-row"><b>${esc(r.start_time || "")}${r.end_time ? "–"+esc(r.end_time) : ""}</b>｜${esc(r.title)}<br><span class="small">📍 ${esc(r.location || "未定")}｜${esc(r.type || "")}${r.note ? "｜"+esc(r.note) : ""}</span></div>`).join("")}
+    </div>`).join("");
+}
+function renderLocations(){
+  $("locationList").innerHTML = DATA.locations.map(l=>`<a href="${esc(l.google_map)}" target="_blank">📍 ${esc(l.name)}</a>`).join("");
+}
+function groupBy(arr, fn){
+  return arr.reduce((a,x)=>{const k=fn(x); (a[k] ||= []).push(x); return a}, {});
+}
+function timeBucket(t){
+  if(!t) return "未填時間";
+  if(t.includes("前一天")) return "前一天";
+  const m = t.match(/(\d{1,2}):/);
+  if(m){ const h = +m[1]; return `${String(h).padStart(2,'0')}:00–${String(h+1).padStart(2,'0')}:00`; }
+  return t;
+}
+function renderTransport(){
+  const byDir = groupBy(DATA.transport, x=>x.direction || "未分類");
+  $("transportList").innerHTML = Object.entries(byDir).map(([dir, rows])=>{
+    const byType = groupBy(rows, x=>x.transport_type || "未分類");
+    return `<div class="card"><h3>${esc(dir)}</h3>
+      ${Object.entries(byType).map(([type, rows2])=>{
+        const byBucket = groupBy(rows2, x => `${x.date_note || ""} ${timeBucket(x.time)}`.trim());
+        return `<h3 class="small">${esc(type)}</h3>` + Object.entries(byBucket).map(([bucket, rs])=>`
+          <details class="details">
+            <summary><span>${esc(type)}｜${esc(bucket)}</span><span class="small">${rs.length}人</span></summary>
+            <div class="detail-body">
+              ${rs.sort((a,b)=>String(a.time).localeCompare(String(b.time))).map(r=>`
+                <div class="event-row ${isSel(r.member_id)?'highlight':''}">
+                  <span class="group-tag">${esc(r.time || "-")}</span>
+                  ${chip(r.member_id)}
+                  <div class="small">${esc(r.carrier || "")}${r.note ? "｜"+esc(r.note) : ""}</div>
+                </div>`).join("")}
+            </div>
+          </details>`).join("");
+      }).join("")}
+    </div>`;
+  }).join("");
+}
+function renderScooter(){
+  const s = DATA.settings;
+  $("scooterNotice").innerHTML = `<h3>📢 領車提醒</h3><p>${esc(s.scooter_note)}</p><p><b>機車業者｜${esc(s.scooter_contact_name)}</b></p><a class="phone-link" href="tel:${esc(s.scooter_contact_phone.replaceAll("-",""))}">📞 ${esc(s.scooter_contact_phone)}</a>`;
+  const byDir = groupBy(DATA.scooter, x=>x.direction || "未分類");
+  $("scooterList").innerHTML = Object.entries(byDir).map(([dir, rows])=>{
+    const byGroup = groupBy(rows, x=>x.ride_group_id || "未分組");
+    return `<div class="card"><h3>${esc(dir)}</h3>
+      ${Object.entries(byGroup).map(([gid, rs])=>`
+        <details class="details">
+          <summary><span>🛵 ${esc(gid)}｜${esc(rs[0]?.time_slot || "")}</span><span class="small">${rs.length}人</span></summary>
+          <div class="detail-body">
+            ${rs.map(r=>`<div class="event-row ${isSel(r.member_id)?'highlight':''}">
+              <span class="group-tag">${esc(r.role || "成員")}</span>${chip(r.member_id)}
+              <div class="small">${esc(r.carrier || "")}${r.note ? "｜"+esc(r.note) : ""}</div>
+            </div>`).join("")}
+          </div>
+        </details>`).join("")}
+    </div>`;
+  }).join("");
+}
+function roomNo(roomName, roomId){
+  const m = (roomName || "").match(/(\d{3,4})/);
+  if(m) return m[1];
+  const id = roomId.match(/(\d{3,4})$/);
+  return id ? id[1] : roomId;
+}
+function renderRooms(){
+  const activeRooms = DATA.rooms.filter(r=>r.member_ids.length);
+  activeRooms.sort((a,b)=>roomNo(a.room_name,a.room_id).localeCompare(roomNo(b.room_name,b.room_id), 'zh-Hant'));
+  $("roomList").innerHTML = activeRooms.map(r=>`
+    <div class="card room-card">
+      <div class="room-head"><div>🏠 ${esc(r.room_type)}（${esc(roomNo(r.room_name,r.room_id))}）</div><div class="floor">📍${esc(r.floor)}</div></div>
+      <div class="people-list">${r.member_ids.map(id=>chip(id)).join("")}</div>
+    </div>`).join("");
+}
+function renderTables(){
+  const byMeal = groupBy(DATA.tables, x=>x.restaurant + "｜" + x.meal_id);
+  $("tableList").innerHTML = Object.entries(byMeal).map(([meal, rows])=>{
+    const [restaurant, mealId] = meal.split("｜");
+    const byTable = groupBy(rows, x=>x.table_no);
+    return `<div class="card"><h3>${esc(restaurant)}</h3><div class="small">${esc(mealId)}</div>
+      ${Object.entries(byTable).sort((a,b)=>Number(a[0])-Number(b[0])).map(([no, rs])=>`
+        <div class="table-card">
+          <div class="table-title"><b>${esc(no)}桌</b><span class="small">${rs.length}人</span></div>
+          <div class="people-list">${rs.map(r=>chip(r.member_id)).join("")}</div>
+        </div>`).join("")}
+    </div>`;
+  }).join("");
+}
+function renderTeams(){
+  $("teamList").innerHTML = DATA.teams.map(t=>{
+    const ms = DATA.members.filter(m=>m.team_id === t.team_id);
+    return `<div class="card team-card">
+      <h3>${esc(t.team_name)} <span class="small">｜${ms.length}人</span></h3>
+      <div class="people-list">${ms.map((m,i)=>chip(m.member_id, `${String(i+1).padStart(2,'0')}｜`)).join("")}</div>
+    </div>`;
+  }).join("");
+}
+function renderPeopleButtons(){
+  const sorted = DATA.members.slice().sort((a,b)=>(a.nickname||a.display_name).localeCompare(b.nickname||b.display_name, "zh-Hant"));
+  $("peopleButtons").innerHTML = sorted.map(m=>`<button class="person-btn ${isSel(m.member_id)?'highlight':''}" onclick="setPerson('${esc(m.member_id)}')">${esc(m.nickname || m.display_name)}</button>`).join("");
+}
+function renderSummary(){
+  const title = $("currentPersonTitle");
+  const viewer = $("viewerBtn");
+  const box = $("personSummary");
+  if(!selectedMemberId || !member(selectedMemberId)){
+    title.textContent = "目前查看：全體模式";
+    viewer.textContent = "👤 全體模式";
+    box.classList.remove("active");
+    box.innerHTML = "";
+    return;
+  }
+  const m = member(selectedMemberId);
+  title.textContent = "目前查看：" + (m.nickname || m.display_name);
+  viewer.textContent = "👤 " + (m.nickname || m.display_name);
+  const room = DATA.rooms.find(r=>r.room_id === m.room_id);
+  const roommates = room ? room.member_ids.filter(id=>id !== m.member_id).map(memberName) : [];
+  const team = DATA.teams.find(t=>t.team_id === m.team_id);
+  const trs = DATA.transport.filter(t=>t.member_id === m.member_id);
+  const scs = DATA.scooter.filter(s=>s.member_id === m.member_id);
+  const seat = DATA.tables.filter(t=>t.member_id === m.member_id);
+  box.classList.add("active");
+  box.innerHTML = `<div class="summary-grid">
+    <div class="summary-item"><b>🏠 房間</b><br>${room ? `${esc(room.room_type)}（${esc(roomNo(room.room_name,room.room_id))}）｜${esc(room.floor)}` : "未找到"}</div>
+    <div class="summary-item"><b>👥 室友</b><br>${roommates.length ? roommates.map(esc).join("、") : "—"}</div>
+    <div class="summary-item"><b>👥 Team</b><br>${team ? esc(team.team_name) : "未找到"}</div>
+    <div class="summary-item"><b>🍴 桌次</b><br>${seat.length ? seat.map(x=>`${esc(x.restaurant)}｜${esc(x.table_no)}桌`).join("<br>") : "未找到"}</div>
+    <div class="summary-item"><b>✈️ 交通</b><br>${trs.length ? trs.map(x=>`${esc(x.direction)}｜${esc(x.transport_type)}｜${esc(x.time)}｜${esc(x.carrier)}${x.date_note ? "｜"+esc(x.date_note) : ""}`).join("<br>") : "未找到"}</div>
+    <div class="summary-item"><b>🛵 機車</b><br>${scs.length ? scs.map(x=>`${esc(x.direction)}｜${esc(x.ride_group_id)}｜${esc(x.time_slot)}｜${esc(x.role)}`).join("<br>") : "未找到"}</div>
+  </div>`;
+}
+function renderAll(){
+  $("title").textContent = DATA.settings.activity_name;
+  $("activityDate").textContent = DATA.settings.activity_date + "｜澎湖離島";
+  $("footerText").textContent = DATA.settings.footer_text;
+  renderStats(); renderSchedule(); renderLocations(); renderTransport(); renderScooter(); renderRooms(); renderTables(); renderTeams(); renderPeopleButtons(); renderSummary();
+  renderEditForms();
+}
+function setPerson(id){selectedMemberId = id; localStorage.setItem("penghuSelectedMemberId", id); renderAll(); location.hash="#person";}
+function clearPerson(){selectedMemberId = ""; localStorage.removeItem("penghuSelectedMemberId"); renderAll();}
+
+/* ===================== 編輯 / 本機儲存 / 匯出匯入 ===================== */
+const STORAGE_KEY = "penghuData_v1";
+function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
+function uid(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1000); }
+
+function renderEditForms(){
+  // 下拉選單：分組 / 房間
+  const teamSel = $("f_m_team");
+  teamSel.innerHTML = `<option value="">（不指定分組）</option>` + DATA.teams.map(t=>`<option value="${esc(t.team_id)}">${esc(t.team_name)}</option>`).join("");
+  const roomSel = $("f_m_room");
+  roomSel.innerHTML = `<option value="">（不指定房間）</option>` + DATA.rooms.map(r=>`<option value="${esc(r.room_id)}">${esc(r.room_name || r.room_id)}</option>`).join("");
+
+  // 人員列表
+  $("memberEditList").innerHTML = DATA.members.map(m=>`
+    <div class="edit-row"><span>${esc(m.nickname || m.display_name)}${m.team_id?"｜"+esc(m.team_id):""}${m.room_id?"｜"+esc(m.room_id):""}</span>
+    <button class="del-btn" onclick="deleteMember('${esc(m.member_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有人員。</p>`;
+
+  // 分組列表
+  $("teamEditList").innerHTML = DATA.teams.map(t=>`
+    <div class="edit-row"><span>${esc(t.team_name)}｜${DATA.members.filter(m=>m.team_id===t.team_id).length}人</span>
+    <button class="del-btn" onclick="deleteTeam('${esc(t.team_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有分組。</p>`;
+
+  // 房間列表
+  $("roomEditList").innerHTML = DATA.rooms.map(r=>`
+    <div class="edit-row"><span>${esc(r.room_name || r.room_id)}${r.floor?"｜"+esc(r.floor):""}｜${r.member_ids.length}人</span>
+    <button class="del-btn" onclick="deleteRoom('${esc(r.room_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有房間。</p>`;
+
+  // 地點列表
+  $("locationEditList").innerHTML = DATA.locations.map((l,i)=>`
+    <div class="edit-row"><span>📍 ${esc(l.name)}</span>
+    <button class="del-btn" onclick="deleteLocation(${i})">刪除</button></div>`).join("") || `<p class="small">目前沒有地點。</p>`;
+
+  // 行程列表
+  $("scheduleEditList").innerHTML = DATA.schedule.map(s=>`
+    <div class="edit-row"><span>${esc(s.day)}｜${esc(s.start_time||"")}${s.end_time?"–"+esc(s.end_time):""}｜${esc(s.title)}</span>
+    <button class="del-btn" onclick="deleteSchedule('${esc(s.schedule_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有行程。</p>`;
+}
+
+function addMember(){
+  const name = $("f_m_name").value.trim();
+  if(!name){ alert("請輸入姓名"); return; }
+  const nickname = $("f_m_nick").value.trim();
+  const team_id = $("f_m_team").value;
+  const room_id = $("f_m_room").value;
+  const id = uid("M_");
+  DATA.members.push({member_id:id, display_name:name, nickname, team_id, room_id,
+    dietary_restriction:"", phone:"", emergency_contact:"", emergency_phone:"", note:""});
+  if(room_id){ const r = DATA.rooms.find(r=>r.room_id===room_id); if(r) r.member_ids.push(id); }
+  $("f_m_name").value=""; $("f_m_nick").value="";
+  saveData(); renderAll();
+}
+function deleteMember(id){
+  if(!confirm("確定要刪除這位人員嗎？")) return;
+  DATA.members = DATA.members.filter(m=>m.member_id!==id);
+  DATA.rooms.forEach(r=> r.member_ids = r.member_ids.filter(x=>x!==id));
+  if(selectedMemberId===id) clearPerson();
+  saveData(); renderAll();
+}
+
+function addTeam(){
+  const name = $("f_t_name").value.trim();
+  if(!name){ alert("請輸入分組名稱"); return; }
+  const id = uid("T_");
+  DATA.teams.push({team_id:id, team_name:name, leader_member_id:"", color:"#64748b", note:""});
+  $("f_t_name").value="";
+  saveData(); renderAll();
+}
+function deleteTeam(id){
+  if(!confirm("確定要刪除這個分組嗎？成員不會被刪除，只會取消分組。")) return;
+  DATA.teams = DATA.teams.filter(t=>t.team_id!==id);
+  DATA.members.forEach(m=>{ if(m.team_id===id) m.team_id=""; });
+  saveData(); renderAll();
+}
+
+function addRoom(){
+  const type = $("f_r_type").value.trim();
+  const name = $("f_r_name").value.trim();
+  const floor = $("f_r_floor").value.trim();
+  if(!type && !name){ alert("請至少輸入房型或房名"); return; }
+  const id = uid("R_");
+  DATA.rooms.push({room_id:id, hotel:"", room_name:name, room_type:type, floor, capacity:"", member_ids:[], note:""});
+  $("f_r_type").value=""; $("f_r_name").value=""; $("f_r_floor").value="";
+  saveData(); renderAll();
+}
+function deleteRoom(id){
+  if(!confirm("確定要刪除這個房間嗎？")) return;
+  DATA.rooms = DATA.rooms.filter(r=>r.room_id!==id);
+  DATA.members.forEach(m=>{ if(m.room_id===id) m.room_id=""; });
+  saveData(); renderAll();
+}
+
+function addLocation(){
+  const name = $("f_l_name").value.trim();
+  if(!name){ alert("請輸入地點名稱"); return; }
+  let map = $("f_l_map").value.trim();
+  if(!map) map = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(name + " 澎湖");
+  DATA.locations.push({name, google_map: map});
+  $("f_l_name").value=""; $("f_l_map").value="";
+  saveData(); renderAll();
+}
+function deleteLocation(idx){
+  if(!confirm("確定要刪除這個地點嗎？")) return;
+  DATA.locations.splice(idx,1);
+  saveData(); renderAll();
+}
+
+function addSchedule(){
+  const day = $("f_s_day").value.trim();
+  const title = $("f_s_title").value.trim();
+  if(!day || !title){ alert("請至少輸入 Day 與標題"); return; }
+  const start_time = $("f_s_start").value.trim();
+  const end_time = $("f_s_end").value.trim();
+  const location = $("f_s_loc").value.trim();
+  DATA.schedule.push({schedule_id:uid("SCH_"), day, start_time, end_time, title, location, type:"", note:"", owner_member_id:""});
+  $("f_s_day").value=""; $("f_s_start").value=""; $("f_s_end").value=""; $("f_s_title").value=""; $("f_s_loc").value="";
+  saveData(); renderAll();
+}
+function deleteSchedule(id){
+  if(!confirm("確定要刪除這筆行程嗎？")) return;
+  DATA.schedule = DATA.schedule.filter(s=>s.schedule_id!==id);
+  saveData(); renderAll();
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const ts = new Date().toISOString().slice(0,10);
+  a.download = `旅遊手冊資料_${ts}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.members || !parsed.settings){ throw new Error("這個檔案看起來不是正確的旅遊手冊資料格式"); }
+      DATA = parsed;
+      saveData();
+      renderAll();
+      alert("匯入成功！");
+    }catch(err){
+      alert("匯入失敗：" + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+function resetData(){
+  if(!confirm("確定要還原成原始資料嗎？你在這台裝置上新增/刪除的內容都會消失（除非你有先匯出備份）。")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+async function init(){
+  try{
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if(cached){
+      DATA = JSON.parse(cached);
+    }else{
+      const res = await fetch("data.json", {cache:"no-store"});
+      DATA = await res.json();
+      saveData();
+    }
+    renderAll();
+  }catch(e){
+    document.querySelector("main").innerHTML = `<div class="card err"><h2>資料載入失敗</h2><p>請確認 index.html 與 data.json 放在同一層。若你是直接用本機檔案開啟，部分瀏覽器可能會阻擋讀取 JSON，建議上傳 GitHub Pages 後開啟。</p><pre>${esc(e.message)}</pre></div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>
