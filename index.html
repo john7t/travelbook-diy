@@ -74,6 +74,12 @@ h3{font-size:20px;margin:0 0 8px}
 .loc-card .loc-btns{display:flex;gap:6px;flex-wrap:wrap}
 .loc-card .loc-btns a{flex:1;text-align:center;background:#f1f5f9;border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;font-weight:800;color:var(--deep);text-decoration:none;white-space:nowrap}
 .loc-nav-body{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.check-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.check-row:last-of-type{border-bottom:0}
+.check-row input[type="checkbox"]{width:20px;height:20px;flex-shrink:0}
+.check-row span.checked-text{text-decoration:line-through;color:#94a3b8}
+.check-row .del-btn{margin-left:auto}
+.chk-new-input{flex:1 1 auto;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px}
 .loc-nav-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:white;border:1px solid var(--line);border-radius:12px;padding:8px 10px;flex-wrap:wrap}
 .loc-nav-item .loc-name{font-weight:800;font-size:13px}
 .loc-nav-item .loc-btns{display:flex;gap:6px}
@@ -103,10 +109,12 @@ h3{font-size:20px;margin:0 0 8px}
       <a href="#home">🏠 首頁</a>
       <a href="#schedule">🗓️ 行程</a>
       <a href="#transport">✈️ 交通</a>
-      <a href="#scooter">🛵 機車</a>
+      <a href="#scooter">🛵 機車／汽車</a>
       <a href="#room">🏠 房間</a>
       <a href="#table">🍴 桌次</a>
       <a href="#team">👥 Team（暫訂）</a>
+      <a href="#expense">💰 費用</a>
+      <a href="#checklist">✅ 檢查清單</a>
       <a href="#person">👤 個人查詢</a>
       <a href="#edit">✏️ 編輯資料</a>
     </div>
@@ -134,8 +142,7 @@ h3{font-size:20px;margin:0 0 8px}
 </section>
 
 <section id="scooter">
-  <h2>🛵 機車</h2>
-  <div class="card notice" id="scooterNotice"></div>
+  <h2>🛵 機車／汽車</h2>
   <div id="scooterList"></div>
 </section>
 
@@ -147,6 +154,22 @@ h3{font-size:20px;margin:0 0 8px}
   <h2>👥 Team（暫訂）</h2>
   <div class="card notice">目前僅作為人員分組參考，後續可能依活動內容進行調整。</div>
   <div id="teamList"></div>
+</section>
+
+<section id="expense">
+  <h2>💰 費用</h2>
+  <div class="card" id="expenseSummary"></div>
+  <div id="expenseList"></div>
+</section>
+
+<section id="checklist">
+  <h2>✅ 檢查清單</h2>
+  <p class="small">出發前打包對照用，勾選狀態只存在你自己的裝置，不會同步給其他人。</p>
+  <div class="actions">
+    <button class="btn secondary" onclick="armAction(this, resetChecklistDefault, '確定')">↩️ 還原成建議清單</button>
+    <button class="btn secondary" onclick="armAction(this, clearAllChecklistChecks, '確定')">🔄 取消全部勾選</button>
+  </div>
+  <div id="checklistBody"></div>
 </section>
 
 <section id="person">
@@ -248,6 +271,26 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 
   <div class="card">
+    <h3>💰 新增費用紀錄</h3>
+    <div class="formrow">
+      <input id="f_e_title" placeholder="項目名稱（例如 民宿訂金、晚餐）">
+      <input id="f_e_amount" type="number" min="0" placeholder="金額">
+      <select id="f_e_payer"></select>
+      <input id="f_e_day" placeholder="Day/日期（可留空）">
+      <input id="f_e_note" placeholder="備註（可留空）">
+    </div>
+    <div class="formrow">
+      <label class="small" style="width:100%">
+        <input type="checkbox" id="f_e_all" checked onchange="toggleExpenseAll()"> 分攤人：勾選＝全部人平分；取消勾選可下面多選特定幾位
+      </label>
+      <select id="f_e_split" class="locids-select" multiple size="4" disabled></select>
+      <button class="btn" id="btn_e_submit" onclick="addExpense()">新增費用</button>
+      <button class="btn secondary cancel-btn" id="btn_e_cancel" onclick="cancelEdit('expense')">取消編輯</button>
+    </div>
+    <div id="expenseEditList" class="edit-list"></div>
+  </div>
+
+  <div class="card">
     <h3>✈️ 新增交通</h3>
     <div class="formrow">
       <select id="f_tr_member"></select>
@@ -264,7 +307,7 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 
   <div class="card">
-    <h3>🛵 新增機車共乘</h3>
+    <h3>🛵 新增機車／汽車共乘</h3>
     <div class="formrow">
       <select id="f_sc_member"></select>
       <select id="f_sc_dir"><option value="去程">去程</option><option value="回程">回程</option></select>
@@ -331,8 +374,18 @@ h3{font-size:20px;margin:0 0 8px}
 let DATA = null;
 let selectedMemberId = localStorage.getItem("penghuSelectedMemberId") || "";
 
-const APP_VERSION = "1.2-002";
+const APP_VERSION = "1.2-005";
 const CHANGELOG = [
+  { version:"1.2-005", date:"2026-07-02", notes:[
+    "新增：✅ 檢查清單功能，內建 3 大類建議打包項目，可勾選、新增、刪除、還原成建議清單",
+    "新增：💰 費用紀錄功能，可記錄每筆費用的出資人與分攤人（可指定特定幾位或全部人平分）",
+    "新增：在「個人查詢」高亮某人時，費用頁會自動算出他已代墊多少、應分攤多少、結算應收/應付金額",
+    "調整：機車頁面拿掉固定的「機車業者」聯絡資訊卡片，標題改為「機車／汽車」，可同時記錄機車與汽車共乘",
+  ]},
+  { version:"1.2-004", date:"2026-07-02", notes:[
+    "新增：行程表單可從下拉選單挑選已存在的 Day，避免手動輸入格式不一致導致同一天無法排序",
+    "修正：刪除／還原／匯入等按鈕改成「按一下變深紅色＋文字確定，再按一次才執行」，避免瀏覽器彈窗造成部分裝置當機",
+  ]},
   { version:"1.2-002", date:"2026-07-02", notes:[
     "新增：清單項目可直接「編輯」修改，不用整個刪除重建",
     "新增：行程可用 ▲／▼ 調整同一天內的順序，臨時異動不用整段重排",
@@ -349,6 +402,16 @@ const CHANGELOG = [
     "固定版本：純展示用旅遊手冊，行程／人員／房間等資料寫死在 data.json，網頁上不可修改"
   ]}
 ];
+
+const CHECKLIST_CATEGORIES = ["證件與財物", "個人衣物與盥洗", "旅遊裝備與其他"];
+const DEFAULT_CHECKLIST = [
+  ["證件與財物","身分證／護照"], ["證件與財物","信用卡／提款卡"], ["證件與財物","現金（小額零錢）"],
+  ["證件與財物","訂房／機票證明"], ["證件與財物","旅遊平安險保單"],
+  ["個人衣物與盥洗","換洗衣物"], ["個人衣物與盥洗","拖鞋／涼鞋"], ["個人衣物與盥洗","泳衣"],
+  ["個人衣物與盥洗","盥洗用品"], ["個人衣物與盥洗","個人常備藥品"],
+  ["旅遊裝備與其他","手機＋充電線"], ["旅遊裝備與其他","行動電源"], ["旅遊裝備與其他","太陽眼鏡／防曬乳"],
+  ["旅遊裝備與其他","雨具／薄外套"], ["旅遊裝備與其他","相機／自拍棒"]
+].map(([category,name],i)=>({item_id:"CHK_default_"+i, category, name, checked:false}));
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -444,8 +507,6 @@ function renderTransport(){
   }).join("");
 }
 function renderScooter(){
-  const s = DATA.settings;
-  $("scooterNotice").innerHTML = `<h3>📢 領車提醒</h3><p>${esc(s.scooter_note)}</p><p><b>機車業者｜${esc(s.scooter_contact_name)}</b></p><a class="phone-link" href="tel:${esc(s.scooter_contact_phone.replaceAll("-",""))}">📞 ${esc(s.scooter_contact_phone)}</a>`;
   const byDir = groupBy(DATA.scooter, x=>x.direction || "未分類");
   $("scooterList").innerHTML = Object.entries(byDir).map(([dir, rows])=>{
     const byGroup = groupBy(rows, x=>x.ride_group_id || "未分組");
@@ -532,7 +593,7 @@ function renderSummary(){
     <div class="summary-item"><b>👥 Team</b><br>${team ? esc(team.team_name) : "未找到"}</div>
     <div class="summary-item"><b>🍴 桌次</b><br>${seat.length ? seat.map(x=>`${esc(x.restaurant)}｜${esc(x.table_no)}桌`).join("<br>") : "未找到"}</div>
     <div class="summary-item"><b>✈️ 交通</b><br>${trs.length ? trs.map(x=>`${esc(x.direction)}｜${esc(x.transport_type)}｜${esc(x.time)}｜${esc(x.carrier)}${x.date_note ? "｜"+esc(x.date_note) : ""}`).join("<br>") : "未找到"}</div>
-    <div class="summary-item"><b>🛵 機車</b><br>${scs.length ? scs.map(x=>`${esc(x.direction)}｜${esc(x.ride_group_id)}｜${esc(x.time_slot)}｜${esc(x.role)}`).join("<br>") : "未找到"}</div>
+    <div class="summary-item"><b>🛵 機車／汽車</b><br>${scs.length ? scs.map(x=>`${esc(x.direction)}｜${esc(x.ride_group_id)}｜${esc(x.time_slot)}｜${esc(x.role)}`).join("<br>") : "未找到"}</div>
   </div>`;
 }
 function renderChangelog(){
@@ -548,6 +609,7 @@ function renderAll(){
   $("activityDate").textContent = DATA.settings.activity_date + "｜澎湖離島";
   $("footerText").textContent = DATA.settings.footer_text;
   renderStats(); renderSchedule(); renderLocations(); renderTransport(); renderScooter(); renderRooms(); renderTables(); renderTeams(); renderPeopleButtons(); renderSummary();
+  renderExpense(); renderChecklist();
   renderEditForms(); renderChangelog();
 }
 function setPerson(id){selectedMemberId = id; localStorage.setItem("penghuSelectedMemberId", id); renderAll(); location.hash="#person";}
@@ -558,12 +620,12 @@ const STORAGE_KEY = "penghuData_v1";
 function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
 function uid(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1000); }
 
-let editing = {member:null, team:null, room:null, location:null, schedule:null, transport:null, scooter:null, table:null};
+let editing = {member:null, team:null, room:null, location:null, schedule:null, transport:null, scooter:null, table:null, expense:null};
 
 function setEditUI(type, isEditing){
-  const map = {member:"m", team:"t", room:"r", location:"l", schedule:"s", transport:"tr", scooter:"sc", table:"tb"};
+  const map = {member:"m", team:"t", room:"r", location:"l", schedule:"s", transport:"tr", scooter:"sc", table:"tb", expense:"e"};
   const p = map[type];
-  const labels = {member:"人員", team:"分組", room:"房間", location:"地點", schedule:"行程", transport:"交通", scooter:"共乘", table:"桌次"};
+  const labels = {member:"人員", team:"分組", room:"房間", location:"地點", schedule:"行程", transport:"交通", scooter:"共乘", table:"桌次", expense:"費用"};
   $("btn_"+p+"_submit").textContent = isEditing ? "💾 儲存修改（"+labels[type]+"）" : "新增"+labels[type];
   $("btn_"+p+"_cancel").classList.toggle("show", isEditing);
 }
@@ -598,10 +660,82 @@ function armAction(btn, actionFn, confirmText){
 }
 const deleteDispatch = {
   member: deleteMember, team: deleteTeam, room: deleteRoom, location: deleteLocation,
-  schedule: deleteSchedule, transport: deleteTransport, scooter: deleteScooter, table: deleteTable
+  schedule: deleteSchedule, transport: deleteTransport, scooter: deleteScooter, table: deleteTable,
+  expense: deleteExpense, checklistItem: deleteChecklistItem
 };
 function armDelete(btn, type, id){
   armAction(btn, ()=>deleteDispatch[type](id), "確定");
+}
+
+function renderExpense(){
+  const total = DATA.expenses.reduce((a,e)=>a+(Number(e.amount)||0),0);
+  let personBlock = "";
+  if(selectedMemberId){
+    const m = DATA.members.find(m=>m.member_id===selectedMemberId);
+    let paid=0, owed=0;
+    DATA.expenses.forEach(e=>{
+      const amt = Number(e.amount)||0;
+      const splitters = (e.split_member_ids && e.split_member_ids.length) ? e.split_member_ids : DATA.members.map(x=>x.member_id);
+      if(e.payer_member_id === selectedMemberId) paid += amt;
+      if(splitters.includes(selectedMemberId) && splitters.length) owed += amt / splitters.length;
+    });
+    const net = paid - owed;
+    personBlock = `<div class="card notice" style="margin-top:12px">
+      <h3>👤 ${esc(m?(m.nickname||m.display_name):"")} 的費用結算</h3>
+      <p>已代墊：$${paid.toFixed(0)}｜應分攤：$${owed.toFixed(0)}</p>
+      <p style="font-size:18px"><b>${net>=0 ? "💰 應收回 $"+net.toFixed(0) : "💸 應支付 $"+Math.abs(net).toFixed(0)}</b></p>
+    </div>`;
+  }
+  $("expenseSummary").innerHTML = `<h3>💰 總花費：$${total.toFixed(0)}</h3><p class="small">共 ${DATA.expenses.length} 筆紀錄。到「👤 個人查詢」點選某人，回到這頁會顯示他的結算金額。</p>${personBlock}`;
+  $("expenseList").innerHTML = DATA.expenses.map(e=>{
+    const payer = DATA.members.find(m=>m.member_id===e.payer_member_id);
+    const splitters = (e.split_member_ids && e.split_member_ids.length) ? e.split_member_ids : null;
+    const splitLabel = splitters ? splitters.map(id=>{const mm=DATA.members.find(x=>x.member_id===id); return mm?(mm.nickname||mm.display_name):"?"}).join("、") : "全部人平分";
+    return `<div class="event-row"><b>${esc(e.title)}</b>｜$${(Number(e.amount)||0).toFixed(0)}<br><span class="small">出資：${esc(payer?(payer.nickname||payer.display_name):"未指定")}｜分攤：${esc(splitLabel)}${e.day?"｜"+esc(e.day):""}${e.note?"｜"+esc(e.note):""}</span></div>`;
+  }).join("") || `<div class="card"><p class="small">目前沒有費用紀錄。</p></div>`;
+}
+
+function renderChecklist(){
+  $("checklistBody").innerHTML = CHECKLIST_CATEGORIES.map(cat=>{
+    const items = DATA.checklist.filter(c=>c.category===cat);
+    const doneCount = items.filter(c=>c.checked).length;
+    return `<div class="card"><h3>${esc(cat)}　<span class="small">(${doneCount}/${items.length})</span></h3>
+      ${items.map(c=>`
+        <div class="check-row">
+          <input type="checkbox" ${c.checked?"checked":""} onchange="toggleChecklistItem('${esc(c.item_id)}')">
+          <span class="${c.checked?'checked-text':''}">${esc(c.name)}</span>
+          <button class="del-btn" onclick="armDelete(this,'checklistItem','${esc(c.item_id)}')">刪除</button>
+        </div>`).join("") || `<p class="small">這個分類目前沒有項目。</p>`}
+      <div class="formrow" style="margin-top:10px">
+        <input class="chk-new-input" data-cat="${esc(cat)}" placeholder="新增項目…">
+        <button class="btn secondary" onclick="addChecklistItem(this)">＋新增</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function addChecklistItem(btn){
+  const input = btn.previousElementSibling;
+  const name = input.value.trim();
+  if(!name) return;
+  DATA.checklist.push({item_id: uid("CHK_"), category: input.dataset.cat, name, checked:false});
+  input.value = "";
+  saveData(); renderChecklist();
+}
+function toggleChecklistItem(id){
+  const c = DATA.checklist.find(c=>c.item_id===id);
+  if(c){ c.checked = !c.checked; saveData(); renderChecklist(); }
+}
+function deleteChecklistItem(id){
+  DATA.checklist = DATA.checklist.filter(c=>c.item_id!==id);
+  saveData(); renderChecklist();
+}
+function resetChecklistDefault(){
+  DATA.checklist = DEFAULT_CHECKLIST.map(c=>({...c}));
+  saveData(); renderChecklist();
+}
+function clearAllChecklistChecks(){
+  DATA.checklist.forEach(c=>{ c.checked = false; });
+  saveData(); renderChecklist();
 }
 
 function renderEditForms(){
@@ -620,6 +754,12 @@ function renderEditForms(){
   $("f_tr_member").innerHTML = memberOptions;
   $("f_sc_member").innerHTML = memberOptions;
   $("f_tb_member").innerHTML = memberOptions;
+  $("f_e_payer").innerHTML = memberOptions;
+
+  const splitSel = $("f_e_split");
+  const prevSplitSelected = Array.from(splitSel.selectedOptions).map(o=>o.value);
+  splitSel.innerHTML = DATA.members.map(m=>`<option value="${esc(m.member_id)}">${esc(m.nickname||m.display_name)}</option>`).join("");
+  selectMultiValues(splitSel, editing.expense ? (DATA.expenses.find(e=>e.expense_id===editing.expense)?.split_member_ids||[]) : prevSplitSelected);
 
   // 地點多選（給行程用），保留目前已勾選的
   const locSel = $("f_s_locids");
@@ -709,6 +849,16 @@ function renderEditForms(){
       <button class="del-btn" onclick="armDelete(this,'table','${esc(t.seating_id)}')">刪除</button>
     </div></div>`;
   }).join("") || `<p class="small">目前沒有桌次資料。</p>`;
+
+  // 費用列表
+  $("expenseEditList").innerHTML = DATA.expenses.map(e=>{
+    const payer = DATA.members.find(m=>m.member_id===e.payer_member_id);
+    return `<div class="edit-row ${editing.expense===e.expense_id?'is-editing':''}"><span>${esc(e.title)}｜$${(Number(e.amount)||0).toFixed(0)}｜出資:${esc(payer?(payer.nickname||payer.display_name):"?")}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditExpense('${esc(e.expense_id)}')">編輯</button>
+      <button class="del-btn" onclick="armDelete(this,'expense','${esc(e.expense_id)}')">刪除</button>
+    </div></div>`;
+  }).join("") || `<p class="small">目前沒有費用紀錄。</p>`;
 }
 
 function saveSettings(){
@@ -1009,6 +1159,50 @@ function deleteTable(id){
   saveData(); renderAll();
 }
 
+function toggleExpenseAll(){
+  const all = $("f_e_all").checked;
+  $("f_e_split").disabled = all;
+  if(all){ $("f_e_split").selectedIndex = -1; }
+}
+function addExpense(){
+  const title = $("f_e_title").value.trim();
+  const amount = parseFloat($("f_e_amount").value);
+  const payer_member_id = $("f_e_payer").value;
+  if(!title || isNaN(amount) || amount<=0){ alert("請輸入項目名稱與正確金額"); return; }
+  if(!payer_member_id){ alert("請選擇出資人"); return; }
+  const isAll = $("f_e_all").checked;
+  const split_member_ids = isAll ? [] : Array.from($("f_e_split").selectedOptions).map(o=>o.value);
+  if(!isAll && !split_member_ids.length){ alert("請至少選一位分攤人，或改勾選「全部人」"); return; }
+  const day = $("f_e_day").value.trim();
+  const note = $("f_e_note").value.trim();
+  if(editing.expense){
+    const ex = DATA.expenses.find(x=>x.expense_id===editing.expense);
+    if(ex) Object.assign(ex, {title, amount, payer_member_id, split_member_ids, day, note});
+    cancelEdit('expense');
+  }else{
+    DATA.expenses.push({expense_id: uid("EXP_"), title, amount, payer_member_id, split_member_ids, day, note});
+  }
+  $("f_e_title").value=""; $("f_e_amount").value=""; $("f_e_day").value=""; $("f_e_note").value="";
+  $("f_e_all").checked = true; $("f_e_split").disabled = true; $("f_e_split").selectedIndex = -1;
+  saveData(); renderAll();
+}
+function startEditExpense(id){
+  const e = DATA.expenses.find(e=>e.expense_id===id); if(!e) return;
+  editing.expense = id;
+  renderEditForms();
+  $("f_e_title").value = e.title; $("f_e_amount").value = e.amount;
+  $("f_e_payer").value = e.payer_member_id; $("f_e_day").value = e.day||""; $("f_e_note").value = e.note||"";
+  const isAll = !(e.split_member_ids && e.split_member_ids.length);
+  $("f_e_all").checked = isAll; $("f_e_split").disabled = isAll;
+  setEditUI('expense', true);
+  $("f_e_title").scrollIntoView({behavior:"smooth", block:"center"});
+}
+function deleteExpense(id){
+  DATA.expenses = DATA.expenses.filter(e=>e.expense_id!==id);
+  if(editing.expense===id) cancelEdit('expense');
+  saveData(); renderAll();
+}
+
 function exportData(){
   const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:"application/json"});
   const a = document.createElement("a");
@@ -1028,6 +1222,8 @@ function importData(event){
       DATA = parsed;
       (DATA.locations||[]).forEach(l=>{ if(!l.location_id) l.location_id = uid("LOC_"); });
       (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids) s.location_ids = []; });
+      if(!DATA.expenses) DATA.expenses = [];
+      if(!DATA.checklist) DATA.checklist = DEFAULT_CHECKLIST.map(c=>({...c}));
       saveData();
       renderAll();
       alert("匯入成功！");
@@ -1094,6 +1290,8 @@ async function importCommunityItinerary(url, name){
     DATA = parsed;
     (DATA.locations||[]).forEach(l=>{ if(!l.location_id) l.location_id = uid("LOC_"); });
     (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids) s.location_ids = []; });
+    if(!DATA.expenses) DATA.expenses = [];
+    if(!DATA.checklist) DATA.checklist = DEFAULT_CHECKLIST.map(c=>({...c}));
     saveData();
     renderAll();
     alert("匯入成功！");
@@ -1111,10 +1309,12 @@ async function init(){
       const res = await fetch("data.json", {cache:"no-store"});
       DATA = await res.json();
     }
-    // 相容舊資料：地點補上 location_id，行程補上 location_ids
+    // 相容舊資料：地點補上 location_id，行程補上 location_ids，補上費用與檢查清單預設值
     let migrated = false;
     (DATA.locations||[]).forEach(l=>{ if(!l.location_id){ l.location_id = uid("LOC_"); migrated = true; } });
     (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids){ s.location_ids = []; migrated = true; } });
+    if(!DATA.expenses){ DATA.expenses = []; migrated = true; }
+    if(!DATA.checklist){ DATA.checklist = DEFAULT_CHECKLIST.map(c=>({...c})); migrated = true; }
     if(!cached || migrated) saveData();
     renderAll();
     loadCommunityItineraries();
