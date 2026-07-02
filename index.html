@@ -65,6 +65,16 @@ h3{font-size:20px;margin:0 0 8px}
 .edit-list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .edit-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14px}
 .del-btn{border:0;background:#fee2e2;color:#991b1b;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer;font-size:13px;flex-shrink:0}
+.edit-btn{border:0;background:#dbeafe;color:#1e40af;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer;font-size:13px;flex-shrink:0}
+.move-btn{border:0;background:#f1f5f9;color:#334155;border-radius:999px;padding:6px 9px;font-weight:900;cursor:pointer;font-size:13px;flex-shrink:0}
+.edit-row-actions{display:flex;gap:6px;flex-shrink:0}
+.edit-row.is-editing{background:#eff6ff;border-color:#93c5fd}
+.cancel-btn{display:none}
+.cancel-btn.show{display:inline-block}
+.locids-select{min-width:180px;max-width:100%}
+.loc-toggle{border:0;background:#e0f2fe;color:#075985;border-radius:12px;padding:6px 10px;font-size:13px;font-weight:800;cursor:pointer;margin-top:8px}
+.loc-nav-body{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+.loc-nav-body a{background:white;border:1px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--deep);font-weight:800;text-decoration:none;font-size:13px}
 @media (max-width:760px){
   main{padding:12px 10px 28px}
   .navrow{padding:8px}
@@ -169,7 +179,8 @@ h3{font-size:20px;margin:0 0 8px}
       <input id="f_m_nick" placeholder="暱稱（列表用，可留空則用姓名）">
       <select id="f_m_team"></select>
       <select id="f_m_room"></select>
-      <button class="btn" onclick="addMember()">新增人員</button>
+      <button class="btn" id="btn_m_submit" onclick="addMember()">新增人員</button>
+      <button class="btn secondary cancel-btn" id="btn_m_cancel" onclick="cancelEdit('member')">取消編輯</button>
     </div>
     <div id="memberEditList" class="edit-list"></div>
   </div>
@@ -178,7 +189,8 @@ h3{font-size:20px;margin:0 0 8px}
     <h3>👥 新增分組 / Team</h3>
     <div class="formrow">
       <input id="f_t_name" placeholder="分組名稱（例如 TEAM E）">
-      <button class="btn" onclick="addTeam()">新增分組</button>
+      <button class="btn" id="btn_t_submit" onclick="addTeam()">新增分組</button>
+      <button class="btn secondary cancel-btn" id="btn_t_cancel" onclick="cancelEdit('team')">取消編輯</button>
     </div>
     <div id="teamEditList" class="edit-list"></div>
   </div>
@@ -189,7 +201,8 @@ h3{font-size:20px;margin:0 0 8px}
       <input id="f_r_type" placeholder="房型（例如 4人房）">
       <input id="f_r_name" placeholder="房名/房號（例如 R-PSK-8201）">
       <input id="f_r_floor" placeholder="樓層/位置說明">
-      <button class="btn" onclick="addRoom()">新增房間</button>
+      <button class="btn" id="btn_r_submit" onclick="addRoom()">新增房間</button>
+      <button class="btn secondary cancel-btn" id="btn_r_cancel" onclick="cancelEdit('room')">取消編輯</button>
     </div>
     <div id="roomEditList" class="edit-list"></div>
   </div>
@@ -199,7 +212,8 @@ h3{font-size:20px;margin:0 0 8px}
     <div class="formrow">
       <input id="f_l_name" placeholder="地點名稱">
       <input id="f_l_map" placeholder="Google 地圖連結（可留空，會自動用名稱搜尋）">
-      <button class="btn" onclick="addLocation()">新增地點</button>
+      <button class="btn" id="btn_l_submit" onclick="addLocation()">新增地點</button>
+      <button class="btn secondary cancel-btn" id="btn_l_cancel" onclick="cancelEdit('location')">取消編輯</button>
     </div>
     <div id="locationEditList" class="edit-list"></div>
   </div>
@@ -211,8 +225,13 @@ h3{font-size:20px;margin:0 0 8px}
       <input id="f_s_start" placeholder="開始時間（例如 09:00）">
       <input id="f_s_end" placeholder="結束時間（可留空）">
       <input id="f_s_title" placeholder="標題">
-      <input id="f_s_loc" placeholder="地點">
-      <button class="btn" onclick="addSchedule()">新增行程</button>
+      <input id="f_s_loc" placeholder="地點文字說明（可留空）">
+    </div>
+    <div class="formrow">
+      <label class="small" style="width:100%">📍 關聯地點導航（可多選，先在上面「新增地點」建立好地點再回來選）</label>
+      <select id="f_s_locids" class="locids-select" multiple size="4"></select>
+      <button class="btn" id="btn_s_submit" onclick="addSchedule()">新增行程</button>
+      <button class="btn secondary cancel-btn" id="btn_s_cancel" onclick="cancelEdit('schedule')">取消編輯</button>
     </div>
     <div id="scheduleEditList" class="edit-list"></div>
   </div>
@@ -227,7 +246,8 @@ h3{font-size:20px;margin:0 0 8px}
       <input id="f_tr_time" placeholder="時間（例如 10:35）">
       <input id="f_tr_datenote" placeholder="日期備註（例如 前一天，可留空）">
       <input id="f_tr_note" placeholder="備註（可留空）">
-      <button class="btn" onclick="addTransport()">新增交通</button>
+      <button class="btn" id="btn_tr_submit" onclick="addTransport()">新增交通</button>
+      <button class="btn secondary cancel-btn" id="btn_tr_cancel" onclick="cancelEdit('transport')">取消編輯</button>
     </div>
     <div id="transportEditList" class="edit-list"></div>
   </div>
@@ -242,7 +262,8 @@ h3{font-size:20px;margin:0 0 8px}
       <select id="f_sc_role"><option value="駕駛">駕駛</option><option value="乘客">乘客</option></select>
       <input id="f_sc_carrier" placeholder="業者（可留空）">
       <input id="f_sc_note" placeholder="備註（可留空）">
-      <button class="btn" onclick="addScooter()">新增共乘</button>
+      <button class="btn" id="btn_sc_submit" onclick="addScooter()">新增共乘</button>
+      <button class="btn secondary cancel-btn" id="btn_sc_cancel" onclick="cancelEdit('scooter')">取消編輯</button>
     </div>
     <div id="scooterEditList" class="edit-list"></div>
   </div>
@@ -255,7 +276,8 @@ h3{font-size:20px;margin:0 0 8px}
       <input id="f_tb_meal" placeholder="餐別代號（例如 MEAL01）">
       <input id="f_tb_no" placeholder="桌號（例如 1）">
       <input id="f_tb_note" placeholder="備註（可留空，例如 桌長）">
-      <button class="btn" onclick="addTable()">新增桌次</button>
+      <button class="btn" id="btn_tb_submit" onclick="addTable()">新增桌次</button>
+      <button class="btn secondary cancel-btn" id="btn_tb_cancel" onclick="cancelEdit('table')">取消編輯</button>
     </div>
     <div id="tableEditList" class="edit-list"></div>
   </div>
@@ -310,7 +332,16 @@ function renderSchedule(){
   DATA.schedule.forEach(s=>{groups[s.day] ||= []; groups[s.day].push(s)});
   $("scheduleList").innerHTML = Object.entries(groups).map(([day, rows])=>`
     <div class="card"><h3>${esc(day)}</h3>
-      ${rows.map(r=>`<div class="event-row"><b>${esc(r.start_time || "")}${r.end_time ? "–"+esc(r.end_time) : ""}</b>｜${esc(r.title)}<br><span class="small">📍 ${esc(r.location || "未定")}｜${esc(r.type || "")}${r.note ? "｜"+esc(r.note) : ""}</span></div>`).join("")}
+      ${rows.map(r=>{
+        const locIds = r.location_ids || [];
+        const locs = locIds.map(id=>DATA.locations.find(l=>l.location_id===id)).filter(Boolean);
+        const navBlock = locs.length ? `
+          <details class="details" style="margin-top:8px">
+            <summary><span>📍 地點導航（${locs.length}）</span></summary>
+            <div class="loc-nav-body">${locs.map(l=>`<a href="${esc(l.google_map)}" target="_blank">📍 ${esc(l.name)}</a>`).join("")}</div>
+          </details>` : "";
+        return `<div class="event-row"><b>${esc(r.start_time || "")}${r.end_time ? "–"+esc(r.end_time) : ""}</b>｜${esc(r.title)}<br><span class="small">📍 ${esc(r.location || "未定")}｜${esc(r.type || "")}${r.note ? "｜"+esc(r.note) : ""}</span>${navBlock}</div>`;
+      }).join("")}
     </div>`).join("");
 }
 function renderLocations(){
@@ -456,6 +487,25 @@ const STORAGE_KEY = "penghuData_v1";
 function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); }
 function uid(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1000); }
 
+let editing = {member:null, team:null, room:null, location:null, schedule:null, transport:null, scooter:null, table:null};
+
+function setEditUI(type, isEditing){
+  const map = {member:"m", team:"t", room:"r", location:"l", schedule:"s", transport:"tr", scooter:"sc", table:"tb"};
+  const p = map[type];
+  const labels = {member:"人員", team:"分組", room:"房間", location:"地點", schedule:"行程", transport:"交通", scooter:"共乘", table:"桌次"};
+  $("btn_"+p+"_submit").textContent = isEditing ? "💾 儲存修改（"+labels[type]+"）" : "新增"+labels[type];
+  $("btn_"+p+"_cancel").classList.toggle("show", isEditing);
+}
+function cancelEdit(type){
+  editing[type] = null;
+  setEditUI(type, false);
+  renderEditForms();
+}
+function selectMultiValues(sel, values){
+  const set = new Set(values || []);
+  Array.from(sel.options).forEach(o => o.selected = set.has(o.value));
+}
+
 function renderEditForms(){
   // 活動基本設定（只在使用者沒在打字時同步，避免覆蓋輸入中的內容）
   if(document.activeElement !== $("f_s_name")) $("f_s_name").value = DATA.settings.activity_name || "";
@@ -473,50 +523,89 @@ function renderEditForms(){
   $("f_sc_member").innerHTML = memberOptions;
   $("f_tb_member").innerHTML = memberOptions;
 
+  // 地點多選（給行程用），保留目前已勾選的
+  const locSel = $("f_s_locids");
+  const prevSelected = Array.from(locSel.selectedOptions).map(o=>o.value);
+  locSel.innerHTML = DATA.locations.map(l=>`<option value="${esc(l.location_id)}">${esc(l.name)}</option>`).join("");
+  selectMultiValues(locSel, editing.schedule ? (DATA.schedule.find(s=>s.schedule_id===editing.schedule)?.location_ids || []) : prevSelected);
+
   // 人員列表
   $("memberEditList").innerHTML = DATA.members.map(m=>`
-    <div class="edit-row"><span>${esc(m.nickname || m.display_name)}${m.team_id?"｜"+esc(m.team_id):""}${m.room_id?"｜"+esc(m.room_id):""}</span>
-    <button class="del-btn" onclick="deleteMember('${esc(m.member_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有人員。</p>`;
+    <div class="edit-row ${editing.member===m.member_id?'is-editing':''}"><span>${esc(m.nickname || m.display_name)}${m.team_id?"｜"+esc(m.team_id):""}${m.room_id?"｜"+esc(m.room_id):""}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditMember('${esc(m.member_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteMember('${esc(m.member_id)}')">刪除</button>
+    </div></div>`).join("") || `<p class="small">目前沒有人員。</p>`;
 
   // 分組列表
   $("teamEditList").innerHTML = DATA.teams.map(t=>`
-    <div class="edit-row"><span>${esc(t.team_name)}｜${DATA.members.filter(m=>m.team_id===t.team_id).length}人</span>
-    <button class="del-btn" onclick="deleteTeam('${esc(t.team_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有分組。</p>`;
+    <div class="edit-row ${editing.team===t.team_id?'is-editing':''}"><span>${esc(t.team_name)}｜${DATA.members.filter(m=>m.team_id===t.team_id).length}人</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditTeam('${esc(t.team_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteTeam('${esc(t.team_id)}')">刪除</button>
+    </div></div>`).join("") || `<p class="small">目前沒有分組。</p>`;
 
   // 房間列表
   $("roomEditList").innerHTML = DATA.rooms.map(r=>`
-    <div class="edit-row"><span>${esc(r.room_name || r.room_id)}${r.floor?"｜"+esc(r.floor):""}｜${r.member_ids.length}人</span>
-    <button class="del-btn" onclick="deleteRoom('${esc(r.room_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有房間。</p>`;
+    <div class="edit-row ${editing.room===r.room_id?'is-editing':''}"><span>${esc(r.room_name || r.room_id)}${r.floor?"｜"+esc(r.floor):""}｜${r.member_ids.length}人</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditRoom('${esc(r.room_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteRoom('${esc(r.room_id)}')">刪除</button>
+    </div></div>`).join("") || `<p class="small">目前沒有房間。</p>`;
 
   // 地點列表
-  $("locationEditList").innerHTML = DATA.locations.map((l,i)=>`
-    <div class="edit-row"><span>📍 ${esc(l.name)}</span>
-    <button class="del-btn" onclick="deleteLocation(${i})">刪除</button></div>`).join("") || `<p class="small">目前沒有地點。</p>`;
+  $("locationEditList").innerHTML = DATA.locations.map(l=>`
+    <div class="edit-row ${editing.location===l.location_id?'is-editing':''}"><span>📍 ${esc(l.name)}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditLocation('${esc(l.location_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteLocation('${esc(l.location_id)}')">刪除</button>
+    </div></div>`).join("") || `<p class="small">目前沒有地點。</p>`;
 
-  // 行程列表
-  $("scheduleEditList").innerHTML = DATA.schedule.map(s=>`
-    <div class="edit-row"><span>${esc(s.day)}｜${esc(s.start_time||"")}${s.end_time?"–"+esc(s.end_time):""}｜${esc(s.title)}</span>
-    <button class="del-btn" onclick="deleteSchedule('${esc(s.schedule_id)}')">刪除</button></div>`).join("") || `<p class="small">目前沒有行程。</p>`;
+  // 行程列表（含同一天內排序）
+  const schedByDay = {};
+  DATA.schedule.forEach(s=>{ (schedByDay[s.day] ||= []).push(s); });
+  $("scheduleEditList").innerHTML = DATA.schedule.map(s=>{
+    const dayList = schedByDay[s.day];
+    const posInDay = dayList.indexOf(s);
+    const locCount = (s.location_ids||[]).length;
+    return `<div class="edit-row ${editing.schedule===s.schedule_id?'is-editing':''}">
+      <span>${esc(s.day)}｜${esc(s.start_time||"")}${s.end_time?"–"+esc(s.end_time):""}｜${esc(s.title)}${locCount?"｜📍x"+locCount:""}</span>
+      <div class="edit-row-actions">
+        <button class="move-btn" ${posInDay===0?"disabled":""} onclick="moveSchedule('${esc(s.schedule_id)}',-1)">▲</button>
+        <button class="move-btn" ${posInDay===dayList.length-1?"disabled":""} onclick="moveSchedule('${esc(s.schedule_id)}',1)">▼</button>
+        <button class="edit-btn" onclick="startEditSchedule('${esc(s.schedule_id)}')">編輯</button>
+        <button class="del-btn" onclick="deleteSchedule('${esc(s.schedule_id)}')">刪除</button>
+      </div></div>`;
+  }).join("") || `<p class="small">目前沒有行程。</p>`;
 
   // 交通列表
   $("transportEditList").innerHTML = DATA.transport.map(t=>{
     const m = DATA.members.find(m=>m.member_id===t.member_id);
-    return `<div class="edit-row"><span>${esc(t.direction)}｜${esc(t.transport_type)}｜${esc(t.time||"")}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
-    <button class="del-btn" onclick="deleteTransport('${esc(t.transport_id)}')">刪除</button></div>`;
+    return `<div class="edit-row ${editing.transport===t.transport_id?'is-editing':''}"><span>${esc(t.direction)}｜${esc(t.transport_type)}｜${esc(t.time||"")}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditTransport('${esc(t.transport_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteTransport('${esc(t.transport_id)}')">刪除</button>
+    </div></div>`;
   }).join("") || `<p class="small">目前沒有交通資料。</p>`;
 
   // 機車列表
   $("scooterEditList").innerHTML = DATA.scooter.map(s=>{
     const m = DATA.members.find(m=>m.member_id===s.member_id);
-    return `<div class="edit-row"><span>${esc(s.direction)}｜${esc(s.ride_group_id)}｜${esc(s.role)}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
-    <button class="del-btn" onclick="deleteScooter('${esc(s.scooter_id)}')">刪除</button></div>`;
+    return `<div class="edit-row ${editing.scooter===s.scooter_id?'is-editing':''}"><span>${esc(s.direction)}｜${esc(s.ride_group_id)}｜${esc(s.role)}｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditScooter('${esc(s.scooter_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteScooter('${esc(s.scooter_id)}')">刪除</button>
+    </div></div>`;
   }).join("") || `<p class="small">目前沒有機車共乘資料。</p>`;
 
   // 桌次列表
   $("tableEditList").innerHTML = DATA.tables.map(t=>{
     const m = DATA.members.find(m=>m.member_id===t.member_id);
-    return `<div class="edit-row"><span>${esc(t.restaurant)}｜${esc(t.table_no)}桌｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
-    <button class="del-btn" onclick="deleteTable('${esc(t.seating_id)}')">刪除</button></div>`;
+    return `<div class="edit-row ${editing.table===t.seating_id?'is-editing':''}"><span>${esc(t.restaurant)}｜${esc(t.table_no)}桌｜${esc(m? (m.nickname||m.display_name):"(未知成員)")}</span>
+    <div class="edit-row-actions">
+      <button class="edit-btn" onclick="startEditTable('${esc(t.seating_id)}')">編輯</button>
+      <button class="del-btn" onclick="deleteTable('${esc(t.seating_id)}')">刪除</button>
+    </div></div>`;
   }).join("") || `<p class="small">目前沒有桌次資料。</p>`;
 }
 
@@ -536,33 +625,73 @@ function addMember(){
   const nickname = $("f_m_nick").value.trim();
   const team_id = $("f_m_team").value;
   const room_id = $("f_m_room").value;
-  const id = uid("M_");
-  DATA.members.push({member_id:id, display_name:name, nickname, team_id, room_id,
-    dietary_restriction:"", phone:"", emergency_contact:"", emergency_phone:"", note:""});
-  if(room_id){ const r = DATA.rooms.find(r=>r.room_id===room_id); if(r) r.member_ids.push(id); }
+  if(editing.member){
+    const m = DATA.members.find(m=>m.member_id===editing.member);
+    if(m){
+      // 房間變動時，同步舊房間/新房間的 member_ids
+      if(m.room_id !== room_id){
+        const oldRoom = DATA.rooms.find(r=>r.room_id===m.room_id);
+        if(oldRoom) oldRoom.member_ids = oldRoom.member_ids.filter(x=>x!==m.member_id);
+        const newRoom = DATA.rooms.find(r=>r.room_id===room_id);
+        if(newRoom && !newRoom.member_ids.includes(m.member_id)) newRoom.member_ids.push(m.member_id);
+      }
+      m.display_name = name; m.nickname = nickname; m.team_id = team_id; m.room_id = room_id;
+    }
+    cancelEdit('member');
+  }else{
+    const id = uid("M_");
+    DATA.members.push({member_id:id, display_name:name, nickname, team_id, room_id,
+      dietary_restriction:"", phone:"", emergency_contact:"", emergency_phone:"", note:""});
+    if(room_id){ const r = DATA.rooms.find(r=>r.room_id===room_id); if(r) r.member_ids.push(id); }
+  }
   $("f_m_name").value=""; $("f_m_nick").value="";
   saveData(); renderAll();
+}
+function startEditMember(id){
+  const m = DATA.members.find(m=>m.member_id===id); if(!m) return;
+  editing.member = id;
+  $("f_m_name").value = m.display_name; $("f_m_nick").value = m.nickname || "";
+  renderEditForms();
+  $("f_m_team").value = m.team_id || ""; $("f_m_room").value = m.room_id || "";
+  setEditUI('member', true);
+  $("f_m_name").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteMember(id){
   if(!confirm("確定要刪除這位人員嗎？")) return;
   DATA.members = DATA.members.filter(m=>m.member_id!==id);
   DATA.rooms.forEach(r=> r.member_ids = r.member_ids.filter(x=>x!==id));
   if(selectedMemberId===id) clearPerson();
+  if(editing.member===id) cancelEdit('member');
   saveData(); renderAll();
 }
 
 function addTeam(){
   const name = $("f_t_name").value.trim();
   if(!name){ alert("請輸入分組名稱"); return; }
-  const id = uid("T_");
-  DATA.teams.push({team_id:id, team_name:name, leader_member_id:"", color:"#64748b", note:""});
+  if(editing.team){
+    const t = DATA.teams.find(t=>t.team_id===editing.team);
+    if(t) t.team_name = name;
+    cancelEdit('team');
+  }else{
+    const id = uid("T_");
+    DATA.teams.push({team_id:id, team_name:name, leader_member_id:"", color:"#64748b", note:""});
+  }
   $("f_t_name").value="";
   saveData(); renderAll();
+}
+function startEditTeam(id){
+  const t = DATA.teams.find(t=>t.team_id===id); if(!t) return;
+  editing.team = id;
+  $("f_t_name").value = t.team_name;
+  setEditUI('team', true);
+  renderEditForms();
+  $("f_t_name").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteTeam(id){
   if(!confirm("確定要刪除這個分組嗎？成員不會被刪除，只會取消分組。")) return;
   DATA.teams = DATA.teams.filter(t=>t.team_id!==id);
   DATA.members.forEach(m=>{ if(m.team_id===id) m.team_id=""; });
+  if(editing.team===id) cancelEdit('team');
   saveData(); renderAll();
 }
 
@@ -571,15 +700,30 @@ function addRoom(){
   const name = $("f_r_name").value.trim();
   const floor = $("f_r_floor").value.trim();
   if(!type && !name){ alert("請至少輸入房型或房名"); return; }
-  const id = uid("R_");
-  DATA.rooms.push({room_id:id, hotel:"", room_name:name, room_type:type, floor, capacity:"", member_ids:[], note:""});
+  if(editing.room){
+    const r = DATA.rooms.find(r=>r.room_id===editing.room);
+    if(r){ r.room_type = type; r.room_name = name; r.floor = floor; }
+    cancelEdit('room');
+  }else{
+    const id = uid("R_");
+    DATA.rooms.push({room_id:id, hotel:"", room_name:name, room_type:type, floor, capacity:"", member_ids:[], note:""});
+  }
   $("f_r_type").value=""; $("f_r_name").value=""; $("f_r_floor").value="";
   saveData(); renderAll();
+}
+function startEditRoom(id){
+  const r = DATA.rooms.find(r=>r.room_id===id); if(!r) return;
+  editing.room = id;
+  $("f_r_type").value = r.room_type || ""; $("f_r_name").value = r.room_name || ""; $("f_r_floor").value = r.floor || "";
+  setEditUI('room', true);
+  renderEditForms();
+  $("f_r_type").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteRoom(id){
   if(!confirm("確定要刪除這個房間嗎？")) return;
   DATA.rooms = DATA.rooms.filter(r=>r.room_id!==id);
   DATA.members.forEach(m=>{ if(m.room_id===id) m.room_id=""; });
+  if(editing.room===id) cancelEdit('room');
   saveData(); renderAll();
 }
 
@@ -588,13 +732,29 @@ function addLocation(){
   if(!name){ alert("請輸入地點名稱"); return; }
   let map = $("f_l_map").value.trim();
   if(!map) map = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(name + " 澎湖");
-  DATA.locations.push({name, google_map: map});
+  if(editing.location){
+    const l = DATA.locations.find(l=>l.location_id===editing.location);
+    if(l){ l.name = name; l.google_map = map; }
+    cancelEdit('location');
+  }else{
+    DATA.locations.push({location_id: uid("LOC_"), name, google_map: map});
+  }
   $("f_l_name").value=""; $("f_l_map").value="";
   saveData(); renderAll();
 }
-function deleteLocation(idx){
-  if(!confirm("確定要刪除這個地點嗎？")) return;
-  DATA.locations.splice(idx,1);
+function startEditLocation(id){
+  const l = DATA.locations.find(l=>l.location_id===id); if(!l) return;
+  editing.location = id;
+  $("f_l_name").value = l.name; $("f_l_map").value = l.google_map || "";
+  setEditUI('location', true);
+  renderEditForms();
+  $("f_l_name").scrollIntoView({behavior:"smooth", block:"center"});
+}
+function deleteLocation(id){
+  if(!confirm("確定要刪除這個地點嗎？行程裡關聯到這個地點的導航連結也會一併移除。")) return;
+  DATA.locations = DATA.locations.filter(l=>l.location_id!==id);
+  DATA.schedule.forEach(s=>{ if(s.location_ids) s.location_ids = s.location_ids.filter(x=>x!==id); });
+  if(editing.location===id) cancelEdit('location');
   saveData(); renderAll();
 }
 
@@ -605,13 +765,44 @@ function addSchedule(){
   const start_time = $("f_s_start").value.trim();
   const end_time = $("f_s_end").value.trim();
   const location = $("f_s_loc").value.trim();
-  DATA.schedule.push({schedule_id:uid("SCH_"), day, start_time, end_time, title, location, type:"", note:"", owner_member_id:""});
+  const location_ids = Array.from($("f_s_locids").selectedOptions).map(o=>o.value);
+  if(editing.schedule){
+    const s = DATA.schedule.find(s=>s.schedule_id===editing.schedule);
+    if(s){ s.day=day; s.start_time=start_time; s.end_time=end_time; s.title=title; s.location=location; s.location_ids=location_ids; }
+    cancelEdit('schedule');
+  }else{
+    DATA.schedule.push({schedule_id:uid("SCH_"), day, start_time, end_time, title, location, location_ids, type:"", note:"", owner_member_id:""});
+  }
   $("f_s_day").value=""; $("f_s_start").value=""; $("f_s_end").value=""; $("f_s_title").value=""; $("f_s_loc").value="";
+  $("f_s_locids").selectedIndex = -1;
   saveData(); renderAll();
+}
+function startEditSchedule(id){
+  const s = DATA.schedule.find(s=>s.schedule_id===id); if(!s) return;
+  editing.schedule = id;
+  $("f_s_day").value = s.day; $("f_s_start").value = s.start_time || ""; $("f_s_end").value = s.end_time || "";
+  $("f_s_title").value = s.title; $("f_s_loc").value = s.location || "";
+  setEditUI('schedule', true);
+  renderEditForms();
+  $("f_s_day").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteSchedule(id){
   if(!confirm("確定要刪除這筆行程嗎？")) return;
   DATA.schedule = DATA.schedule.filter(s=>s.schedule_id!==id);
+  if(editing.schedule===id) cancelEdit('schedule');
+  saveData(); renderAll();
+}
+function moveSchedule(id, dir){
+  const list = DATA.schedule;
+  const targetDay = list.find(s=>s.schedule_id===id)?.day;
+  if(targetDay===undefined) return;
+  const sameDayIdx = list.map((s,i)=>s.day===targetDay?i:-1).filter(i=>i!==-1);
+  const curFullIdx = list.findIndex(s=>s.schedule_id===id);
+  const pos = sameDayIdx.indexOf(curFullIdx);
+  const swapPos = pos + dir;
+  if(swapPos<0 || swapPos>=sameDayIdx.length) return;
+  const i1 = sameDayIdx[pos], i2 = sameDayIdx[swapPos];
+  [list[i1], list[i2]] = [list[i2], list[i1]];
   saveData(); renderAll();
 }
 
@@ -619,18 +810,36 @@ function addTransport(){
   const member_id = $("f_tr_member").value;
   if(!member_id){ alert("請選擇人員"); return; }
   const m = DATA.members.find(m=>m.member_id===member_id);
-  DATA.transport.push({
-    transport_id: uid("TR_"), member_id, display_name: m ? (m.nickname||m.display_name) : "",
+  const payload = {
+    member_id, display_name: m ? (m.nickname||m.display_name) : "",
     direction: $("f_tr_dir").value, transport_type: $("f_tr_type").value.trim(),
     carrier: $("f_tr_carrier").value.trim(), time: $("f_tr_time").value.trim(),
-    date_note: $("f_tr_datenote").value.trim(), scooter_partner_member_id: "", note: $("f_tr_note").value.trim()
-  });
+    date_note: $("f_tr_datenote").value.trim(), note: $("f_tr_note").value.trim()
+  };
+  if(editing.transport){
+    const t = DATA.transport.find(t=>t.transport_id===editing.transport);
+    if(t) Object.assign(t, payload);
+    cancelEdit('transport');
+  }else{
+    DATA.transport.push({transport_id: uid("TR_"), scooter_partner_member_id: "", ...payload});
+  }
   $("f_tr_type").value=""; $("f_tr_carrier").value=""; $("f_tr_time").value=""; $("f_tr_datenote").value=""; $("f_tr_note").value="";
   saveData(); renderAll();
+}
+function startEditTransport(id){
+  const t = DATA.transport.find(t=>t.transport_id===id); if(!t) return;
+  editing.transport = id;
+  renderEditForms();
+  $("f_tr_member").value = t.member_id; $("f_tr_dir").value = t.direction || "去程";
+  $("f_tr_type").value = t.transport_type || ""; $("f_tr_carrier").value = t.carrier || "";
+  $("f_tr_time").value = t.time || ""; $("f_tr_datenote").value = t.date_note || ""; $("f_tr_note").value = t.note || "";
+  setEditUI('transport', true);
+  $("f_tr_member").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteTransport(id){
   if(!confirm("確定要刪除這筆交通資料嗎？")) return;
   DATA.transport = DATA.transport.filter(t=>t.transport_id!==id);
+  if(editing.transport===id) cancelEdit('transport');
   saveData(); renderAll();
 }
 
@@ -638,17 +847,35 @@ function addScooter(){
   const member_id = $("f_sc_member").value;
   if(!member_id){ alert("請選擇人員"); return; }
   const group = $("f_sc_group").value.trim() || uid("RG_");
-  DATA.scooter.push({
-    scooter_id: uid("SC_"), ride_group_id: group, direction: $("f_sc_dir").value,
+  const payload = {
+    ride_group_id: group, direction: $("f_sc_dir").value,
     time_slot: $("f_sc_time").value.trim(), member_id, role: $("f_sc_role").value,
     carrier: $("f_sc_carrier").value.trim(), note: $("f_sc_note").value.trim()
-  });
+  };
+  if(editing.scooter){
+    const s = DATA.scooter.find(s=>s.scooter_id===editing.scooter);
+    if(s) Object.assign(s, payload);
+    cancelEdit('scooter');
+  }else{
+    DATA.scooter.push({scooter_id: uid("SC_"), ...payload});
+  }
   $("f_sc_group").value=""; $("f_sc_time").value=""; $("f_sc_carrier").value=""; $("f_sc_note").value="";
   saveData(); renderAll();
+}
+function startEditScooter(id){
+  const s = DATA.scooter.find(s=>s.scooter_id===id); if(!s) return;
+  editing.scooter = id;
+  renderEditForms();
+  $("f_sc_member").value = s.member_id; $("f_sc_dir").value = s.direction || "去程";
+  $("f_sc_group").value = s.ride_group_id || ""; $("f_sc_time").value = s.time_slot || "";
+  $("f_sc_role").value = s.role || "駕駛"; $("f_sc_carrier").value = s.carrier || ""; $("f_sc_note").value = s.note || "";
+  setEditUI('scooter', true);
+  $("f_sc_member").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteScooter(id){
   if(!confirm("確定要刪除這筆共乘資料嗎？")) return;
   DATA.scooter = DATA.scooter.filter(s=>s.scooter_id!==id);
+  if(editing.scooter===id) cancelEdit('scooter');
   saveData(); renderAll();
 }
 
@@ -656,17 +883,34 @@ function addTable(){
   const member_id = $("f_tb_member").value;
   if(!member_id){ alert("請選擇人員"); return; }
   const m = DATA.members.find(m=>m.member_id===member_id);
-  DATA.tables.push({
-    seating_id: uid("S_"), member_id, display_name: m ? (m.nickname||m.display_name) : "",
+  const payload = {
+    member_id, display_name: m ? (m.nickname||m.display_name) : "",
     meal_id: $("f_tb_meal").value.trim(), restaurant: $("f_tb_restaurant").value.trim(),
-    table_no: $("f_tb_no").value.trim(), is_table_leader: "", note: $("f_tb_note").value.trim()
-  });
+    table_no: $("f_tb_no").value.trim(), note: $("f_tb_note").value.trim()
+  };
+  if(editing.table){
+    const t = DATA.tables.find(t=>t.seating_id===editing.table);
+    if(t) Object.assign(t, payload);
+    cancelEdit('table');
+  }else{
+    DATA.tables.push({seating_id: uid("S_"), is_table_leader: "", ...payload});
+  }
   $("f_tb_restaurant").value=""; $("f_tb_meal").value=""; $("f_tb_no").value=""; $("f_tb_note").value="";
   saveData(); renderAll();
+}
+function startEditTable(id){
+  const t = DATA.tables.find(t=>t.seating_id===id); if(!t) return;
+  editing.table = id;
+  renderEditForms();
+  $("f_tb_member").value = t.member_id; $("f_tb_restaurant").value = t.restaurant || "";
+  $("f_tb_meal").value = t.meal_id || ""; $("f_tb_no").value = t.table_no || ""; $("f_tb_note").value = t.note || "";
+  setEditUI('table', true);
+  $("f_tb_member").scrollIntoView({behavior:"smooth", block:"center"});
 }
 function deleteTable(id){
   if(!confirm("確定要刪除這筆桌次資料嗎？")) return;
   DATA.tables = DATA.tables.filter(t=>t.seating_id!==id);
+  if(editing.table===id) cancelEdit('table');
   saveData(); renderAll();
 }
 
@@ -687,6 +931,8 @@ function importData(event){
       const parsed = JSON.parse(e.target.result);
       if(!parsed.members || !parsed.settings){ throw new Error("這個檔案看起來不是正確的旅遊手冊資料格式"); }
       DATA = parsed;
+      (DATA.locations||[]).forEach(l=>{ if(!l.location_id) l.location_id = uid("LOC_"); });
+      (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids) s.location_ids = []; });
       saveData();
       renderAll();
       alert("匯入成功！");
@@ -711,8 +957,12 @@ async function init(){
     }else{
       const res = await fetch("data.json", {cache:"no-store"});
       DATA = await res.json();
-      saveData();
     }
+    // 相容舊資料：地點補上 location_id，行程補上 location_ids
+    let migrated = false;
+    (DATA.locations||[]).forEach(l=>{ if(!l.location_id){ l.location_id = uid("LOC_"); migrated = true; } });
+    (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids){ s.location_ids = []; migrated = true; } });
+    if(!cached || migrated) saveData();
     renderAll();
   }catch(e){
     document.querySelector("main").innerHTML = `<div class="card err"><h2>資料載入失敗</h2><p>請確認 index.html 與 data.json 放在同一層。若你是直接用本機檔案開啟，部分瀏覽器可能會阻擋讀取 JSON，建議上傳 GitHub Pages 後開啟。</p><pre>${esc(e.message)}</pre></div>`;
