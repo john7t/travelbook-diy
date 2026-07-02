@@ -283,6 +283,15 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 
   <div class="card">
+    <h3>📚 社群行程範本</h3>
+    <p class="small">會自動讀取這個 GitHub repo 裡 <code id="itinDirLabel">itineraries/</code> 目錄下的 .json 檔案，直接匯入別人建好的行程（需部署在 GitHub Pages 才能用）。</p>
+    <div class="actions">
+      <button class="btn secondary" onclick="loadCommunityItineraries()">🔄 重新整理清單</button>
+    </div>
+    <div id="communityList" class="edit-list"><p class="small">讀取中…</p></div>
+  </div>
+
+  <div class="card">
     <h3>💾 資料備份 / 分享</h3>
     <div class="actions">
       <button class="btn" onclick="exportData()">📤 匯出資料（下載 JSON）</button>
@@ -294,12 +303,41 @@ h3{font-size:20px;margin:0 0 8px}
   </div>
 </section>
 
+<section id="changelog">
+  <h2>📝 更新紀錄</h2>
+  <div class="card">
+    <details class="details">
+      <summary><span>目前版本：v<span id="curVersion"></span></span><span class="small">點開查看所有版本紀錄</span></summary>
+      <div class="detail-body" id="changelogBody"></div>
+    </details>
+  </div>
+</section>
+
 <div class="footer" id="footerText">2026勸世減重澎湖花火節四天三夜 Web 旅遊手冊</div>
 </main>
 
 <script>
 let DATA = null;
 let selectedMemberId = localStorage.getItem("penghuSelectedMemberId") || "";
+
+const APP_VERSION = "1.2-002";
+const CHANGELOG = [
+  { version:"1.2-002", date:"2026-07-02", notes:[
+    "新增：清單項目可直接「編輯」修改，不用整個刪除重建",
+    "新增：行程可用 ▲／▼ 調整同一天內的順序，臨時異動不用整段重排",
+    "新增：地點可與行程關聯，行程下方可展開「📍 地點導航」，一次看該時段所有相關地點連結",
+    "新增：社群行程範本目錄，開啟編輯頁會自動列出 GitHub 上其他人分享的行程 JSON，可直接匯入",
+    "新增：頁面最下方顯示可展開的版本紀錄（Changelog）"
+  ]},
+  { version:"1.2-001", date:"2026-07-01", notes:[
+    "新增：「編輯資料」頁籤，可自行新增人員／分組／房間／地點／行程／交通／機車／桌次",
+    "新增：資料改為儲存在瀏覽器本機（localStorage），並可匯出／匯入 JSON 與朋友分享",
+    "新增：活動名稱／日期／手冊名稱可直接在網頁上設定，不用再修改 data.json"
+  ]},
+  { version:"1.0", date:"2026-06-09", notes:[
+    "固定版本：純展示用旅遊手冊，行程／人員／房間等資料寫死在 data.json，網頁上不可修改"
+  ]}
+];
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -472,12 +510,20 @@ function renderSummary(){
     <div class="summary-item"><b>🛵 機車</b><br>${scs.length ? scs.map(x=>`${esc(x.direction)}｜${esc(x.ride_group_id)}｜${esc(x.time_slot)}｜${esc(x.role)}`).join("<br>") : "未找到"}</div>
   </div>`;
 }
+function renderChangelog(){
+  $("curVersion").textContent = APP_VERSION;
+  $("changelogBody").innerHTML = CHANGELOG.map(c=>`
+    <div class="event-row">
+      <b>v${esc(c.version)}</b><span class="small">　${esc(c.date)}</span>
+      <ul style="margin:6px 0 0;padding-left:20px">${c.notes.map(n=>`<li class="small">${esc(n)}</li>`).join("")}</ul>
+    </div>`).join("");
+}
 function renderAll(){
   $("title").textContent = DATA.settings.activity_name;
   $("activityDate").textContent = DATA.settings.activity_date + "｜澎湖離島";
   $("footerText").textContent = DATA.settings.footer_text;
   renderStats(); renderSchedule(); renderLocations(); renderTransport(); renderScooter(); renderRooms(); renderTables(); renderTeams(); renderPeopleButtons(); renderSummary();
-  renderEditForms();
+  renderEditForms(); renderChangelog();
 }
 function setPerson(id){selectedMemberId = id; localStorage.setItem("penghuSelectedMemberId", id); renderAll(); location.hash="#person";}
 function clearPerson(){selectedMemberId = ""; localStorage.removeItem("penghuSelectedMemberId"); renderAll();}
@@ -949,6 +995,66 @@ function resetData(){
   location.reload();
 }
 
+/* ===================== 社群行程範本（讀取 GitHub repo 內的 itineraries/ 目錄） ===================== */
+const ITINERARY_DIR = "itineraries";
+function detectRepo(){
+  try{
+    const host = location.hostname;
+    if(host.endsWith(".github.io")){
+      const owner = host.split(".")[0];
+      const parts = location.pathname.split("/").filter(Boolean);
+      const repo = parts.length ? parts[0] : (owner + ".github.io");
+      return {owner, repo};
+    }
+  }catch(e){}
+  return null;
+}
+async function loadCommunityItineraries(){
+  const box = $("communityList");
+  box.innerHTML = `<p class="small">讀取中…</p>`;
+  const repoInfo = detectRepo();
+  if(!repoInfo){
+    box.innerHTML = `<p class="small">無法自動偵測 GitHub repo（目前網址不是 xxx.github.io）。這個功能要部署到 GitHub Pages 後才能用，本機開檔或其他網域無法讀取。</p>`;
+    return;
+  }
+  $("itinDirLabel").textContent = `${repoInfo.owner}/${repoInfo.repo}/${ITINERARY_DIR}/`;
+  try{
+    const url = `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/${ITINERARY_DIR}`;
+    const res = await fetch(url);
+    if(!res.ok){
+      box.innerHTML = `<p class="small">目前讀不到 ${esc(ITINERARY_DIR)}/ 目錄（可能還沒建立，或 repo 是 private）。在 repo 根目錄新增一個 ${esc(ITINERARY_DIR)}/ 資料夾，放進 .json 行程檔即可。</p>`;
+      return;
+    }
+    const list = await res.json();
+    const files = (Array.isArray(list) ? list : []).filter(f=>f.type==="file" && /\.json$/i.test(f.name));
+    if(!files.length){
+      box.innerHTML = `<p class="small">${esc(ITINERARY_DIR)}/ 目錄裡目前沒有 .json 檔案。</p>`;
+      return;
+    }
+    box.innerHTML = files.map(f=>`
+      <div class="edit-row"><span>📄 ${esc(f.name.replace(/\.json$/i,""))}</span>
+      <button class="btn secondary" onclick="importCommunityItinerary('${esc(f.download_url)}','${esc(f.name.replace(/'/g,"\\'"))}')">匯入</button></div>`).join("");
+  }catch(e){
+    box.innerHTML = `<p class="small">讀取失敗：${esc(e.message)}</p>`;
+  }
+}
+async function importCommunityItinerary(url, name){
+  if(!confirm(`確定要匯入「${name}」嗎？這會完整覆蓋你目前這台裝置上的資料（建議先按上面的「匯出資料」備份一份）。`)) return;
+  try{
+    const res = await fetch(url, {cache:"no-store"});
+    const parsed = await res.json();
+    if(!parsed.members || !parsed.settings){ throw new Error("這個檔案看起來不是正確的旅遊手冊資料格式"); }
+    DATA = parsed;
+    (DATA.locations||[]).forEach(l=>{ if(!l.location_id) l.location_id = uid("LOC_"); });
+    (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids) s.location_ids = []; });
+    saveData();
+    renderAll();
+    alert("匯入成功！");
+  }catch(e){
+    alert("匯入失敗：" + e.message);
+  }
+}
+
 async function init(){
   try{
     const cached = localStorage.getItem(STORAGE_KEY);
@@ -964,6 +1070,7 @@ async function init(){
     (DATA.schedule||[]).forEach(s=>{ if(!s.location_ids){ s.location_ids = []; migrated = true; } });
     if(!cached || migrated) saveData();
     renderAll();
+    loadCommunityItineraries();
   }catch(e){
     document.querySelector("main").innerHTML = `<div class="card err"><h2>資料載入失敗</h2><p>請確認 index.html 與 data.json 放在同一層。若你是直接用本機檔案開啟，部分瀏覽器可能會阻擋讀取 JSON，建議上傳 GitHub Pages 後開啟。</p><pre>${esc(e.message)}</pre></div>`;
   }
